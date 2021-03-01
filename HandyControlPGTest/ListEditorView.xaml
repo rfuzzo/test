@@ -17,8 +17,8 @@
 
             </ResourceDictionary.MergedDictionaries>
             <ControlTemplate x:Key="TreeViewItemTemplate" >
-                <TreeViewItem Header="{Binding SELECTEDOBJECTNAME}"> 
-                    <hc:PropertyGrid SelectedObject="{Binding BINDSELECTEDOBJECT}">
+                <TreeViewItem Header="{Binding SelectedObjectName}">
+                    <hc:PropertyGrid SelectedObject="{Binding SelectedObject}">
                         
                     </hc:PropertyGrid>
                 </TreeViewItem>
@@ -32,12 +32,20 @@
             <Grid>
                 <Button Margin="0,5,5,0" HorizontalAlignment="Right" hc:IconElement.Geometry="{DynamicResource DragHorizontalGeometry}"/>
 
-                <hc:ComboBox ToolTip="Press ENTER to add an item." IsEditable="True" Width="auto" ShowClearButton="True" Margin="5,5,50,0" MaxHeight="50" />
+                <hc:ComboBox 
+                    ToolTip="Press ENTER to add an item." 
+                    IsEditable="True" 
+                    Width="auto" 
+                    ShowClearButton="True" 
+                    Margin="5,5,50,0" 
+                    MaxHeight="50" />
             </Grid>
 
-
-            <TreeView Margin="5" x:Name="test" ItemsSource="{Binding BINDLISTOFOBJECTS?}">
-                
+            <TreeView Margin="5" x:Name="TreeView" 
+                      ItemsSource="{Binding ItemsSource}"
+                      SelectedItemChanged="TreeView_OnSelectedItemChanged"
+                      >
+               
                 <!-- Add TreeviewItem from code behind with the ITEMTEMPLATE SET-->
             </TreeView>
    

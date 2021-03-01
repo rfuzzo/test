@@ -28,6 +28,8 @@ namespace HandyControlPGTest.Model
         public List<DemoModel> dList { get; set; }
 
         public DemoModel DdModel { get; set; }
+
+        public override string ToString() => String;
     }
 
 

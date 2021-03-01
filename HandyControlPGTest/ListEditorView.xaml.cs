@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -23,6 +26,41 @@ namespace HandyControlPGTest
         public ListEditorView()
         {
             InitializeComponent();
+        }
+
+        public IEnumerable ItemsSource
+        {
+            get => (IEnumerable) GetValue(ItemsSourceProperty);
+            set => SetValue(ItemsSourceProperty, value);
+        }
+
+        public string SelectedObjectName => SelectedObject.ToString();
+
+        public object SelectedObject { get; set; }
+
+
+
+
+        public static readonly DependencyProperty ItemsSourceProperty
+            = DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ListEditorView),
+                new FrameworkPropertyMetadata((IEnumerable) null,
+                    new PropertyChangedCallback(OnItemsSourceChanged)));
+
+        private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ListEditorView UserControl1Control = d as ListEditorView;
+            UserControl1Control.OnSetItemSourceChanged(e);
+        }
+
+        private void OnSetItemSourceChanged(DependencyPropertyChangedEventArgs e)
+        {
+            TreeView.ItemsSource = e.NewValue as IEnumerable;
+        }
+
+
+        private void TreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            SelectedObject = e.NewValue;
         }
     }
 }
