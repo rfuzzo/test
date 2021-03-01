@@ -23,6 +23,11 @@ namespace HandyControlPGTest
         public MainWindow()
         {
             InitializeComponent();
+
+
+            TreeViewItem Test = new TreeViewItem();
+            Test.Template = (ControlTemplate)this.FindResource("TreeViewItemTemplate");
+            test.Items.Add(Test);
         }
     }
 }
