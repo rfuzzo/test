@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="HandyControlPGTest.CollectionEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HandyControlPGTest"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" 
+             MinHeight="250"
+
+             >
+    <Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+
+            <Grid Grid.Column="0" Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+
+                <ListView Grid.Row="0" Grid.Column="0" 
+                          ItemsSource="{Binding Collection}">
+
+                </ListView>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Margin="2" Content="Add"/>
+                    <Button Grid.Column="1" Margin="2" Content="Add"/>
+                    <Button Grid.Column="2" Margin="2" Content="Add"/>
+                    <hc:ComboBox Grid.Column="3" Margin="2"/>
+                    <Button Grid.Column="4" Margin="2" Content="Add"/>
+                </Grid>
+
+
+            </Grid>
+
+            <hc:ScrollViewer Grid.Column="1" Margin="5">
+                <hc:PropertyGrid  SelectedObject="{Binding SelectedItem}" />
+            </hc:ScrollViewer>
+
+        </Grid>
+
+
+    </Grid>
+</UserControl>

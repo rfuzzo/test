@@ -6,13 +6,17 @@
         xmlns:local="clr-namespace:HandyControlPGTest"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" >
     <Window.DataContext>
         <local:MainViewModel/>
     </Window.DataContext>
     <hc:ScrollViewer>
         <StackPanel>
-
+            <TreeView>
+                <TreeViewItem>
+                    <hc:PropertyGrid SelectedObject="{Binding DemoModel}"/>
+                </TreeViewItem>
+            </TreeView>
             <ListView ItemsSource="{Binding DemoModel.List2}" MinWidth="6">
                 <ListView.View>
                     <GridView>

@@ -22,9 +22,9 @@ namespace HandyControlPGTest.Model
         public string String { get; set; }
         public Gender Enum { get; set; }
         public int Integer { get; set; }
-        [Editor(typeof(IListPropertyEditor), typeof(PropertyEditorBase))]
+        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
         public List<string> List { get; set; }
-        [Editor(typeof(IListPropertyEditor), typeof(PropertyEditorBase))]
+        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
         public List<DemoModel> dList { get; set; }
 
         public DemoModel DdModel { get; set; }
@@ -48,10 +48,10 @@ namespace HandyControlPGTest.Model
         }
         public DemoModel DemoModel { get; set; }
 
-        [Editor(typeof(IListPropertyEditor), typeof(PropertyEditorBase))]
+        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
         public List<string> List { get; set; }
 
-        [Editor(typeof(IListPropertyEditor), typeof(PropertyEditorBase))]
+        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
         public List<DemoModel> List2 { get; set; }
 
         public string String { get; set; }
@@ -60,7 +60,6 @@ namespace HandyControlPGTest.Model
 
         public bool Boolean { get; set; }
 
-        [Editor(typeof(EnumPropertyEditor), typeof(PropertyEditorBase))]
         public Gender Enum { get; set; }
         public ImageSource ImageSource { get; set; }
     }
