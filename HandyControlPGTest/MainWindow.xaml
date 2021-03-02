@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:HandyControlPGTest"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         mc:Ignorable="d"
-        Title="MainWindow" >
+        Title="MainWindow" 
+        d:DesignWidth="200"
+        >
     <Window.DataContext>
         <local:MainViewModel/>
     </Window.DataContext>
@@ -27,16 +29,6 @@
         <StackPanel  Background="{DynamicResource RegionBrush}">
 
             <local:ListEditorView ItemsSource="{Binding ModelList}"/>
-            <!--<ListView ItemsSource="{Binding DemoModel.List2}" MinWidth="6">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Width="80" 
-                                        Header="title1"
-                                        DisplayMemberBinding="{Binding }"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-            <hc:PropertyGrid SelectedObject="{Binding DemoModel}"/>-->
         </StackPanel>
     </hc:ScrollViewer>
 </Window>

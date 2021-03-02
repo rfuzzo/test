@@ -15,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GalaSoft.MvvmLight.Command;
+using HandyControl.Tools.Extension;
 
 namespace HandyControlPGTest
 {
@@ -34,17 +36,12 @@ namespace HandyControlPGTest
             set => SetValue(ItemsSourceProperty, value);
         }
 
-        public string SelectedObjectName => SelectedObject.ToString();
-
-        public object SelectedObject { get; set; }
-
-
-
+        public static string Header => "HEADER";
 
         public static readonly DependencyProperty ItemsSourceProperty
             = DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ListEditorView),
                 new FrameworkPropertyMetadata((IEnumerable) null,
-                    new PropertyChangedCallback(OnItemsSourceChanged)));
+                    new PropertyChangedCallback( OnItemsSourceChanged)));
 
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -54,13 +51,12 @@ namespace HandyControlPGTest
 
         private void OnSetItemSourceChanged(DependencyPropertyChangedEventArgs e)
         {
-            TreeView.ItemsSource = e.NewValue as IEnumerable;
+            //TreeView.ItemsSource = e.NewValue as IEnumerable;
+            if (e.NewValue is IEnumerable newValue)
+            {
+                TreeView.ItemsSource = newValue;
+            }
         }
 
-
-        private void TreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            SelectedObject = e.NewValue;
-        }
     }
 }
