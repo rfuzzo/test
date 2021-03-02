@@ -33,34 +33,24 @@ namespace HandyControlPGTest.Model
         public override string ToString() => String;
     }
 
-    [Editor(typeof(ICvariableNumericEditor), typeof(PropertyEditorBase))]
-    public class IntWrapper : ObservableObject
+    public class IntWrapper
     {
-        public int Val
+        public int Value { get; set; }
+
+        public IntWrapper(int value)
         {
-            get => _value;
-            set
-            {
-                if (_value != value)
-                {
-                    var oldValue = _value;
-                    _value = value;
-                    OnPropertyChanged(nameof(Val));
-                }
-            }
+            Value = value;
+        }
+    }
+
+    public class StringWrapper
+    {
+        public StringWrapper(string v)
+        {
+            Value = v;
         }
 
-        private int _value;
-
-
-        //public int Val { get; set; }
-
-        public IntWrapper(int val)
-        {
-            Val = val;
-        }
-
-        public override string ToString() => Val.ToString();
+        public string Value { get; set; }
     }
 
 
@@ -70,13 +60,13 @@ namespace HandyControlPGTest.Model
         {
             Integer = new IntWrapper(999);
 
-            ListString = new ObservableCollection<string>();
+            ListString = new ObservableCollection<DemoModel>();
 
             ListInt = new ObservableCollection<IntWrapper>();
 
             for (int i = 0; i < 5; i++)
             {
-                ListString.Add($"Item{i}");
+                ListString.Add(new DemoModel());
             }
 
             for (int i = 0; i < 5; i++)
@@ -96,7 +86,7 @@ namespace HandyControlPGTest.Model
         public DemoModel DemoModel { get; set; }
 
         [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public ObservableCollection<string> ListString { get; set; }
+        public ObservableCollection<DemoModel> ListString { get; set; }
         [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
         public ObservableCollection<IntWrapper> ListInt { get; set; }
 

@@ -20,7 +20,6 @@
                 <hc:ThemeResources RequestedTheme="Dark"/>
                 <hc:Theme/>
             </ResourceDictionary.MergedDictionaries>
-
             <editors:ICVariableNumericToDoubleConverter x:Key="ICVariableNumericToDoubleConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -29,39 +28,18 @@
         <Expander>
             
             <StackPanel>
-                <TreeView Margin="5" x:Name="TreeViewControl" 
-                          ItemsSource="{Binding ItemsSource}"
-                >
-                    <TreeView.Resources>
-                        <DataTemplate DataType="{x:Type model:IntWrapper}">
-                            <hc:NumericUpDown Value="{Binding 
-                                Path=., 
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged,
-                                Converter={StaticResource ICVariableNumericToDoubleConverter}}"/>
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type s:String}">
-                            <TextBox Text="{Binding 
-                                Path=., 
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged}"/>
-                        </DataTemplate>
-                    </TreeView.Resources>
-                </TreeView>
-
                 <Grid >
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0" 
+                    <Button Grid.Column="1" 
                             Margin="0,5,5,0" 
-                            HorizontalAlignment="Left" 
+                            HorizontalAlignment="Right" 
                             hc:IconElement.Geometry="{DynamicResource DragHorizontalGeometry}"/>
 
-                    <hc:ComboBox Grid.Column="1" 
+                    <hc:ComboBox Grid.Column="0" 
                                  ToolTip="Press ENTER to add an item." 
                                  IsEditable="True" 
                                  Width="auto" 
@@ -70,6 +48,29 @@
                                  MaxHeight="50" />
 
                 </Grid>
+
+                <TreeView Margin="5" x:Name="TreeViewControl" 
+                          ItemsSource="{Binding ItemsSource}">
+
+                    <TreeView.Resources>
+                        <DataTemplate DataType="{x:Type model:IntWrapper}">
+                            <TextBox Text="{Binding 
+                                Path=Value, 
+                                Mode=TwoWay,
+                                UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type model:DemoModel}">
+                            <Expander>
+                                <hc:PropertyGrid SelectedObject="{Binding 
+                                Path=., 
+                                Mode=TwoWay,
+                                UpdateSourceTrigger=PropertyChanged}"/>
+                            </Expander>
+                        </DataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+
+                
 
             </StackPanel>
         </Expander>

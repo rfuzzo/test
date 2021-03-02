@@ -28,7 +28,7 @@ namespace HandyControlPGTest.Editors
     {
         public object
             Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) =>
-            value is IntWrapper cvar ? cvar.Val : 0;
+            value is IntWrapper cvar ? cvar.Value : 0;
 
         // needs to be double to be able to convert from the Numeric Converter
         public object ConvertBack(object value, Type targetType, object parameter,
