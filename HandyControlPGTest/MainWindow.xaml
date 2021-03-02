@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HandyControlPGTest"
         xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:editors="clr-namespace:HandyControlPGTest.Editors"
         mc:Ignorable="d"
         Title="MainWindow" 
         d:DesignWidth="200"
@@ -14,24 +15,28 @@
     </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
-
             <ResourceDictionary.MergedDictionaries>
-
                 <hc:ThemeResources RequestedTheme="Dark"/>
                 <hc:Theme/>
-
             </ResourceDictionary.MergedDictionaries>
-            
+            <editors:ICVariableNumericToDoubleConverter x:Key="ICVariableNumericToDoubleConverter" />
         </ResourceDictionary>
 
     </Window.Resources>
     <hc:ScrollViewer>
         <StackPanel  Background="{DynamicResource RegionBrush}">
 
-            <local:ListEditorView ItemsSource="{Binding ModelList}"/>
-            <hc:PropertyGrid SelectedObject="{Binding DemoModel}"/>
-            <TextBox Background="Green" Text="{Binding DemoModel.Integer.Val}"/>
-            <TextBox Background="Red" Text="{Binding DemoModel.String}"/>
+            <!--<local:ListEditorView ItemsSource="{Binding ModelList}"/>-->
+            <hc:PropertyGrid SelectedObject="{Binding DemoModel, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            
+            <hc:NumericUpDown Background="CornflowerBlue" Value="{Binding DemoModel.Integer, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource ICVariableNumericToDoubleConverter}}"/>
+            <TextBox Background="CornflowerBlue" Text="{Binding DemoModel.String, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+
+            <hc:NumericUpDown Background="Red" Value="{Binding DemoModel.ListInt[0], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource ICVariableNumericToDoubleConverter}}"/>
+            <TreeView Background="Red" ItemsSource="{Binding DemoModel.ListInt, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+
+            <TextBox Background="Green" Text="{Binding DemoModel.ListString[0], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <TreeView Background="Green" ItemsSource="{Binding DemoModel.ListString, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
         </StackPanel>
     </hc:ScrollViewer>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -15,17 +16,17 @@ namespace HandyControlPGTest.Model
     {
         public DemoModel()
         {
-            List = new List<string>();
-            dList = new List<DemoModel>();
+            //List = new List<string>();
+            //dList = new List<DemoModel>();
         }
 
         public string String { get; set; }
         public Gender Enum { get; set; }
         public int Integer { get; set; }
-        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public List<string> List { get; set; }
-        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public List<DemoModel> dList { get; set; }
+        //[Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
+        //public List<string> List { get; set; }
+        //[Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
+        //public List<DemoModel> dList { get; set; }
 
         public DemoModel DdModel { get; set; }
 
@@ -33,14 +34,33 @@ namespace HandyControlPGTest.Model
     }
 
     [Editor(typeof(ICvariableNumericEditor), typeof(PropertyEditorBase))]
-    public class IntWrapper
+    public class IntWrapper : ObservableObject
     {
-        public int Val { get; set; }
+        public int Val
+        {
+            get => _value;
+            set
+            {
+                if (_value != value)
+                {
+                    var oldValue = _value;
+                    _value = value;
+                    OnPropertyChanged(nameof(Val));
+                }
+            }
+        }
+
+        private int _value;
+
+
+        //public int Val { get; set; }
 
         public IntWrapper(int val)
         {
             Val = val;
         }
+
+        public override string ToString() => Val.ToString();
     }
 
 
@@ -50,20 +70,21 @@ namespace HandyControlPGTest.Model
         {
             Integer = new IntWrapper(999);
 
-            ListString = new List<string>();
-            ListInt = new List<IntWrapper>();
+            ListString = new ObservableCollection<string>();
 
-            for (int i = 0; i < 100; i++)
+            ListInt = new ObservableCollection<IntWrapper>();
+
+            for (int i = 0; i < 5; i++)
             {
                 ListString.Add($"Item{i}");
             }
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 5; i++)
             {
-                ListInt.Add(new IntWrapper(i));
+                ListInt.Add(new IntWrapper(i* 2));
             }
 
-            ListDemoModel = new List<DemoModel>();
+            //ListDemoModel = new List<DemoModel>();
 
             DemoModel = new DemoModel()
             {
@@ -75,12 +96,12 @@ namespace HandyControlPGTest.Model
         public DemoModel DemoModel { get; set; }
 
         [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public List<string> ListString { get; set; }
+        public ObservableCollection<string> ListString { get; set; }
         [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public List<IntWrapper> ListInt { get; set; }
+        public ObservableCollection<IntWrapper> ListInt { get; set; }
 
-        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public List<DemoModel> ListDemoModel { get; set; }
+        //[Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
+        //public List<DemoModel> ListDemoModel { get; set; }
 
         public string String { get; set; }
 

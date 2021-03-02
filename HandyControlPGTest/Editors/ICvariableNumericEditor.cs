@@ -32,7 +32,12 @@ namespace HandyControlPGTest.Editors
 
         // needs to be double to be able to convert from the Numeric Converter
         public object ConvertBack(object value, Type targetType, object parameter,
-            System.Globalization.CultureInfo culture) =>
-            value is double val ? new IntWrapper((int)val) : new IntWrapper(0);
+            System.Globalization.CultureInfo culture)
+        {
+            if (value is double val)
+                return new IntWrapper((int) val);
+            else
+                return new IntWrapper(0);
+        }
     }
 }

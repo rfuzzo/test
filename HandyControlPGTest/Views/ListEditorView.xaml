@@ -5,6 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HandyControlPGTest" 
              xmlns:hc="https://handyorg.github.io/handycontrol" 
+             xmlns:model="clr-namespace:HandyControlPGTest.Model"
+             xmlns:editors="clr-namespace:HandyControlPGTest.Editors"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
              d:DataContext="{d:DesignInstance Type=local:ListEditorView}"
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="800"
@@ -17,6 +20,8 @@
                 <hc:ThemeResources RequestedTheme="Dark"/>
                 <hc:Theme/>
             </ResourceDictionary.MergedDictionaries>
+
+            <editors:ICVariableNumericToDoubleConverter x:Key="ICVariableNumericToDoubleConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -24,24 +29,25 @@
         <Expander>
             
             <StackPanel>
-
-                
-
-                <ListBox Margin="5" x:Name="TreeView" 
-                         ItemsSource="{Binding ItemsSource}"
-                         hc:ListBoxAttach.IsOddEvenRow="True" AlternationCount="2"
-                         Style="{DynamicResource ListBoxCustom}"
+                <TreeView Margin="5" x:Name="TreeViewControl" 
+                          ItemsSource="{Binding ItemsSource}"
                 >
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Expander
-                                BorderThickness="1,1,1,0" 
-                                Header="{Binding}">
-                                <hc:PropertyGrid SelectedObject="{Binding}"/>
-                            </Expander>
+                    <TreeView.Resources>
+                        <DataTemplate DataType="{x:Type model:IntWrapper}">
+                            <hc:NumericUpDown Value="{Binding 
+                                Path=., 
+                                Mode=TwoWay,
+                                UpdateSourceTrigger=PropertyChanged,
+                                Converter={StaticResource ICVariableNumericToDoubleConverter}}"/>
                         </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                        <DataTemplate DataType="{x:Type s:String}">
+                            <TextBox Text="{Binding 
+                                Path=., 
+                                Mode=TwoWay,
+                                UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
 
                 <Grid >
                     <Grid.ColumnDefinitions>
