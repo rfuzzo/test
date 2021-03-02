@@ -24,8 +24,8 @@ namespace HandyControlPGTest
                 String = "TestString",
                 Enum = Gender.Female,
                 Boolean = true,
-                Integer = 98,
-                List2 = new List<DemoModel>() { new()
+                Integer = new IntWrapper(98),
+                ListDemoModel = new List<DemoModel>() { new()
                 {
                     dList = new List<DemoModel>(),
                     List = new List<string>(){"hhh", "jjj", "kkk"},

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using HandyControl.Controls;
+using HandyControlPGTest.Model;
 
 namespace HandyControlPGTest.Editors
 {
@@ -14,17 +15,12 @@ namespace HandyControlPGTest.Editors
     {
         public override FrameworkElement CreateElement(PropertyItem propertyItem)
         {
-            var view = new ListView();
-            var gridView = new GridView();
-            gridView.Columns.Add(new GridViewColumn()
-            {
-                Header = "Header",
-                DisplayMemberBinding = new Binding()
-            });
-            view.View = gridView;
+            var view = new ListEditorView();
             return view;
         }
 
-        public override DependencyProperty GetDependencyProperty() => ItemsControl.ItemsSourceProperty;
+        public override DependencyProperty GetDependencyProperty() => ListEditorView.ItemsSourceProperty;
     }
+
+    
 }

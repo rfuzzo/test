@@ -10,7 +10,7 @@ using HandyControlPGTest.Editors;
 
 namespace HandyControlPGTest.Model
 {
-    [Editor(typeof(PropertyGridEditor), typeof(PropertyEditorBase))]
+    [Editor(typeof(ExpandableObjectEditor), typeof(PropertyEditorBase))]
     public class DemoModel
     {
         public DemoModel()
@@ -32,14 +32,38 @@ namespace HandyControlPGTest.Model
         public override string ToString() => String;
     }
 
+    [Editor(typeof(ICvariableNumericEditor), typeof(PropertyEditorBase))]
+    public class IntWrapper
+    {
+        public int Val { get; set; }
+
+        public IntWrapper(int val)
+        {
+            Val = val;
+        }
+    }
+
 
     public class PropertyGridDemoModel
     {
-
         public PropertyGridDemoModel()
         {
-            List = new List<string>() { "aaa", "bbb" };
-            List2 = new List<DemoModel>();
+            Integer = new IntWrapper(999);
+
+            ListString = new List<string>();
+            ListInt = new List<IntWrapper>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                ListString.Add($"Item{i}");
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                ListInt.Add(new IntWrapper(i));
+            }
+
+            ListDemoModel = new List<DemoModel>();
 
             DemoModel = new DemoModel()
             {
@@ -51,14 +75,16 @@ namespace HandyControlPGTest.Model
         public DemoModel DemoModel { get; set; }
 
         [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public List<string> List { get; set; }
+        public List<string> ListString { get; set; }
+        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
+        public List<IntWrapper> ListInt { get; set; }
 
         [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public List<DemoModel> List2 { get; set; }
+        public List<DemoModel> ListDemoModel { get; set; }
 
         public string String { get; set; }
 
-        public int Integer { get; set; }
+        public IntWrapper Integer { get; set; }
 
         public bool Boolean { get; set; }
 

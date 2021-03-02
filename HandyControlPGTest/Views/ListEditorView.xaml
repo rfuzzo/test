@@ -24,35 +24,46 @@
         <Expander>
             
             <StackPanel>
-                <Grid>
-                    <Button Margin="0,5,5,0" HorizontalAlignment="Right" hc:IconElement.Geometry="{DynamicResource DragHorizontalGeometry}"/>
 
-                    <hc:ComboBox 
-                        ToolTip="Press ENTER to add an item." 
-                        IsEditable="True" 
-                        Width="auto" 
-                        ShowClearButton="True" 
-                        Margin="5,5,50,0" 
-                        MaxHeight="50" />
-                </Grid>
+                
 
                 <ListBox Margin="5" x:Name="TreeView" 
                          ItemsSource="{Binding ItemsSource}"
                          hc:ListBoxAttach.IsOddEvenRow="True" AlternationCount="2"
                          Style="{DynamicResource ListBoxCustom}"
                 >
-
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Expander 
+                            <Expander
                                 BorderThickness="1,1,1,0" 
-                                
                                 Header="{Binding}">
                                 <hc:PropertyGrid SelectedObject="{Binding}"/>
                             </Expander>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" 
+                            Margin="0,5,5,0" 
+                            HorizontalAlignment="Left" 
+                            hc:IconElement.Geometry="{DynamicResource DragHorizontalGeometry}"/>
+
+                    <hc:ComboBox Grid.Column="1" 
+                                 ToolTip="Press ENTER to add an item." 
+                                 IsEditable="True" 
+                                 Width="auto" 
+                                 ShowClearButton="True" 
+                                 Margin="5,5,10,0" 
+                                 MaxHeight="50" />
+
+                </Grid>
 
             </StackPanel>
         </Expander>

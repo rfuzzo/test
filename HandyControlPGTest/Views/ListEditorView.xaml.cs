@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GalaSoft.MvvmLight.Command;
+using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 
 namespace HandyControlPGTest
@@ -30,13 +32,14 @@ namespace HandyControlPGTest
             InitializeComponent();
         }
 
+        public static string Header => "HEADER";
+
+
         public IEnumerable ItemsSource
         {
             get => (IEnumerable) GetValue(ItemsSourceProperty);
             set => SetValue(ItemsSourceProperty, value);
         }
-
-        public static string Header => "HEADER";
 
         public static readonly DependencyProperty ItemsSourceProperty
             = DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ListEditorView),
@@ -57,6 +60,5 @@ namespace HandyControlPGTest
                 TreeView.ItemsSource = newValue;
             }
         }
-
     }
 }

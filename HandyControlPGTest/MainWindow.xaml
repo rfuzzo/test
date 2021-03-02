@@ -29,6 +29,10 @@
         <StackPanel  Background="{DynamicResource RegionBrush}">
 
             <local:ListEditorView ItemsSource="{Binding ModelList}"/>
+            <hc:PropertyGrid SelectedObject="{Binding DemoModel}"/>
+            <TextBox Background="Green" Text="{Binding DemoModel.Integer.Val}"/>
+            <TextBox Background="Red" Text="{Binding DemoModel.String}"/>
+
         </StackPanel>
     </hc:ScrollViewer>
 </Window>

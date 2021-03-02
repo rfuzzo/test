@@ -9,7 +9,7 @@ using HandyControl.Controls;
 
 namespace HandyControlPGTest.Editors
 {
-    public class PropertyGridEditor : PropertyEditorBase
+    public class ExpandableObjectEditor : PropertyEditorBase
     {
         public override FrameworkElement CreateElement(PropertyItem propertyItem)
         {
