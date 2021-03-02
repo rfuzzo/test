@@ -79,33 +79,18 @@
             <TextBox 
                 Background="Green" 
                 Text="{Binding StringList[0].Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-            <DataGrid 
+            <TreeView 
                 Background="Green" 
                 ItemsSource="{Binding StringList, 
                 UpdateSourceTrigger=PropertyChanged, 
                 Mode=TwoWay}">
 
-                <DataGrid.Columns>
-                    <DataGridTextColumn Width="Auto" 
-                                        CanUserResize="False" 
-                                        Binding="{Binding
-                        Path=Value,
-                        Mode=TwoWay,
-                        UpdateSourceTrigger=PropertyChanged
-                        
-                        }" 
-                                        Header="HEAD"/>
-                </DataGrid.Columns>
-
-                <!--<ListBox.Resources>
-                    <DataTemplate DataType="{x:Type s:String}">
-                        <TextBox Text="{Binding 
-                                Path=., 
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged}"/>
-                    </DataTemplate>
-                </ListBox.Resources>-->
-            </DataGrid>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type model:StringWrapper}">
+                        <TextBlock Text="{Binding Value}" />
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
 
         </StackPanel>
     </hc:ScrollViewer>

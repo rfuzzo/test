@@ -18,6 +18,7 @@ namespace HandyControlPGTest.Model
         {
             //List = new List<string>();
             //dList = new List<DemoModel>();
+            String = "TEST";
         }
 
         public string String { get; set; }

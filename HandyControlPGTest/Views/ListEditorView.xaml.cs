@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,73 +28,18 @@ namespace HandyControlPGTest
     /// <summary>
     /// Interaction logic for ListEditor.xaml
     /// </summary>
-    [TemplatePart(Name = ElementItemsControl, Type = typeof(ItemsControl))]
     public partial class ListEditorView : UserControl
     {
-        private const string ElementItemsControl = "PART_ItemsControl";
-
         public ListEditorView()
         {
             InitializeComponent();
 
-            //_itemsControl = PART_ItemsControl;
-            
         }
 
         public static string Header => "HEADER";
-
-        #region deprecated
-        //private ItemsControl _itemsControl;
-        //private ICollectionView _dataView;
-        //public virtual PropertyResolver PropertyResolver { get; } = new PropertyResolver();
-        //private void UpdateItems(object obj)
-        //{
-        //    if (obj == null || _itemsControl == null) return;
-
-        //    if (obj is IEnumerable enumerable)
-        //    {
-        //        var pelements = new List<PropertyItem>();
-        //        var i = 0;
-        //        foreach (var item in enumerable)
-        //        {
-        //            var defaultEditor = PropertyResolver.CreateDefaultEditor(item.GetType());
-        //            if (item is IntWrapper)
-        //            {
-        //                defaultEditor = new ICvariableNumericEditor();
-        //            }
-
-        //            pelements.Add(CreatePropertyItem(item, i.ToString(), defaultEditor));
-        //            i++;
-        //        }
-        //        _dataView = CollectionViewSource.GetDefaultView(pelements
-        //            .Do(item => item.InitElement())
-        //            .Select(_ => _.EditorElement)
-        //            );
-
-        //        _itemsControl.ItemsSource = _dataView;
-        //    }
-        //}
-        //protected virtual PropertyItem CreatePropertyItem(object source, string name, PropertyEditorBase editor)
-        //{
-        //    var item = new PropertyItem();
-        //    item.Category = "Miscellaneous";
-        //    item.DisplayName = name;
-        //    item.Description = "";
-        //    item.IsReadOnly = false;
-        //    item.DefaultValue = null;
-        //    item.Editor = PropertyResolver.CreateEditor(editor.GetType(), typeof(PropertyEditorBase));
-        //    item.Value = source;
-        //    item.PropertyName = ".";
-        //    item.PropertyType = source.GetType();
-        //    item.PropertyTypeName = $"{source.GetType().Namespace}.{source.GetType().Name}";
-        //    return item;
-        //}
-        //public static readonly RoutedEvent SelectedObjectChangedEvent =
-        //    EventManager.RegisterRoutedEvent("SelectedObjectChanged", RoutingStrategy.Bubble,
-        //        typeof(RoutedPropertyChangedEventHandler<object>), typeof(ListEditorView));
-        #endregion
-
-
+        
+        public object SelectedObject { get; set; }
+        public string SelectedObjectName => "HEADER";
 
         public IEnumerable ItemsSource
         {
@@ -118,12 +65,51 @@ namespace HandyControlPGTest
 
         private void OnSetItemSourceChanged(object oldValue, object newValue)
         {
-            //UpdateItems(newValue);
-            //RaiseEvent(new RoutedPropertyChangedEventArgs<object>(oldValue, newValue, SelectedObjectChangedEvent));
-            if (newValue is IEnumerable enumerable)
+            if (newValue is not IEnumerable enumerable) return;
+            switch (enumerable)
             {
-               TreeViewControl.ItemsSource = enumerable;
+                case IEnumerable<IntWrapper> intwrapper:
+                    InitNumericEditor(intwrapper);
+                    break;
+                default:
+                    InitDefaultEditor(enumerable);
+                    break;
             }
+        }
+
+        private void InitNumericEditor(IEnumerable enumerable)
+        {
+            ContentControl.Template = (ControlTemplate)this.FindResource("NumericEditor");
+            ContentControl.DataContext = enumerable;
+        }
+
+        private void InitDefaultEditor(IEnumerable enumerable)
+        {
+            //ContentControl.Template = (ControlTemplate)this.FindResource("DefaultEditor");
+            var treeview = new TreeView();
+            foreach (var obj in enumerable)
+            {
+                var templateName = "PropertyGridEditor";
+
+                var treeViewItem = new TreeViewItem
+                {
+                    Template = (ControlTemplate) this.FindResource(templateName), 
+                    DataContext = obj
+                };
+
+                treeview.Items.Add(treeViewItem);
+            }
+
+            ContentControl.Content = treeview;
+        }
+
+        private void TreeViewControl_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            
+        }
+
+        private void TreeViewItem_OnSelected(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

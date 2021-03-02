@@ -14,66 +14,87 @@
              
              >
 
+    <!-- Resources -->
     <UserControl.Resources>
         <ResourceDictionary>
+            <!-- HandyControls -->
             <ResourceDictionary.MergedDictionaries>
                 <hc:ThemeResources RequestedTheme="Dark"/>
                 <hc:Theme/>
             </ResourceDictionary.MergedDictionaries>
-            <editors:ICVariableNumericToDoubleConverter x:Key="ICVariableNumericToDoubleConverter" />
+
+            <!-- NumericEditor -->
+            <ControlTemplate x:Key="NumericEditor" >
+                <DataGrid ItemsSource="{Binding}"
+                          CanUserSortColumns="False" >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="Auto" 
+                                            MinWidth="100"
+                                            CanUserResize="True" 
+                                            Binding="{Binding Path=Value,
+                                                Mode=TwoWay,
+                                                UpdateSourceTrigger=PropertyChanged}" 
+                                            Header="VALUE"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ControlTemplate>
+
+            <!-- DefaultEditor -->
+            <ControlTemplate x:Key="DefaultEditor" >
+                <TreeView Name="TreeView"/>
+            </ControlTemplate>
+
+            <!-- PropertyGridEditor -->
+            <ControlTemplate x:Key="PropertyGridEditor" >
+                <TreeViewItem Selected="TreeViewItem_OnSelected" >
+                    <TreeViewItem.Header>
+                        <Grid>
+                            <TextBlock Margin="30,0" Text="{Binding String}" DataContext="{Binding}"/>
+                        </Grid>
+                    </TreeViewItem.Header>
+                    <hc:PropertyGrid SelectedObject="{Binding}"/>
+                </TreeViewItem>
+            </ControlTemplate>
         </ResourceDictionary>
+
     </UserControl.Resources>
 
     <Grid Background="Transparent">
-        <Expander>
-            
-            <StackPanel>
-                <Grid >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+        <!-- Main Layout -->
+        <TreeView>
+            <TreeViewItem>
 
-                    <Button Grid.Column="1" 
-                            Margin="0,5,5,0" 
-                            HorizontalAlignment="Right" 
-                            hc:IconElement.Geometry="{DynamicResource DragHorizontalGeometry}"/>
+                <!--Header -->
+                <TreeViewItem.Header>
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <hc:ComboBox Grid.Column="0" 
-                                 ToolTip="Press ENTER to add an item." 
-                                 IsEditable="True" 
-                                 Width="auto" 
-                                 ShowClearButton="True" 
-                                 Margin="5,5,10,0" 
-                                 MaxHeight="50" />
+                        <!-- Add Item Box -->
+                        <hc:ComboBox Grid.Column="0" 
+                                     ToolTip="Press ENTER to add an item." 
+                                     IsEditable="True" 
+                                     Width="auto" 
+                                     ShowClearButton="True" 
+                                     Margin="0,5,10,5" 
+                                     MaxHeight="50" />
 
-                </Grid>
+                        <!-- Open Special Editor Button -->
+                        <Button Grid.Column="1" 
+                                Margin="0,5,5,5" 
+                                HorizontalAlignment="Right" 
+                                hc:IconElement.Geometry="{DynamicResource DragHorizontalGeometry}"/>
 
-                <TreeView Margin="5" x:Name="TreeViewControl" 
-                          ItemsSource="{Binding ItemsSource}">
+                    </Grid>
+                </TreeViewItem.Header>
 
-                    <TreeView.Resources>
-                        <DataTemplate DataType="{x:Type model:IntWrapper}">
-                            <TextBox Text="{Binding 
-                                Path=Value, 
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged}"/>
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type model:DemoModel}">
-                            <Expander>
-                                <hc:PropertyGrid SelectedObject="{Binding 
-                                Path=., 
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged}"/>
-                            </Expander>
-                        </DataTemplate>
-                    </TreeView.Resources>
-                </TreeView>
+                <!-- Control Body -->
+                <ContentControl Name="ContentControl"/>
 
-                
-
-            </StackPanel>
-        </Expander>
+            </TreeViewItem>
+        </TreeView>
 
         
     </Grid>
