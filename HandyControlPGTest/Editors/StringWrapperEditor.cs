@@ -112,20 +112,22 @@ namespace HandyControlPGTest.Editors
 
         #endregion
 
-        public class StringWrapperToStringConverter : IValueConverter
-        {
-            public object
-                Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) =>
-                value is StringWrapper cvar ? cvar.Value : "";
+        
+    }
 
-            public object ConvertBack(object value, Type targetType, object parameter,
-                System.Globalization.CultureInfo culture)
-            {
-                if (value is string val)
-                    return new StringWrapper(val);
-                else
-                    return new StringWrapper("");
-            }
+    public class StringWrapperToStringConverter : IValueConverter
+    {
+        public object
+            Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) =>
+            value is StringWrapper cvar ? cvar.Value : "";
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value is string val)
+                return new StringWrapper(val);
+            else
+                return new StringWrapper("");
         }
     }
 }
