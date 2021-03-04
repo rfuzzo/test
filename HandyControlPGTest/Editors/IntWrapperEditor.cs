@@ -10,7 +10,7 @@ using HandyControlPGTest.Model;
 
 namespace HandyControlPGTest.Editors
 {
-    public class ICvariableNumericEditor : PropertyEditorBase
+    public class IntWrapperEditor : PropertyEditorBase
     {
         public override FrameworkElement CreateElement(PropertyItem propertyItem) =>
             new NumericUpDown
@@ -18,13 +18,12 @@ namespace HandyControlPGTest.Editors
                 IsReadOnly = propertyItem.IsReadOnly
             };
 
-        protected override IValueConverter GetConverter(PropertyItem propertyItem) => new ICVariableNumericToDoubleConverter();
+        protected override IValueConverter GetConverter(PropertyItem propertyItem) => new IntWrapperToDoubleConverter();
 
         public override DependencyProperty GetDependencyProperty() => NumericUpDown.ValueProperty;
     }
 
-    //TODO: make this ICVariableNumeric
-    public class ICVariableNumericToDoubleConverter : IValueConverter
+    public class IntWrapperToDoubleConverter : IValueConverter
     {
         public object
             Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) =>
@@ -35,7 +34,7 @@ namespace HandyControlPGTest.Editors
             System.Globalization.CultureInfo culture)
         {
             if (value is double val)
-                return new IntWrapper((int) val);
+                return new IntWrapper((int)val);
             else
                 return new IntWrapper(0);
         }

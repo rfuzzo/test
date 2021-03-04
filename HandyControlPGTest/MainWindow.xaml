@@ -10,7 +10,7 @@
         xmlns:s="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
         Title="MainWindow" 
-        d:DesignWidth="200"
+        d:DesignWidth="600"
         >
     <Window.DataContext>
         <local:MainViewModel/>
@@ -21,7 +21,8 @@
                 <hc:ThemeResources RequestedTheme="Dark"/>
                 <hc:Theme/>
             </ResourceDictionary.MergedDictionaries>
-            <editors:ICVariableNumericToDoubleConverter x:Key="ICVariableNumericToDoubleConverter" />
+            <editors:IntWrapperToDoubleConverter x:Key="IntWrapperToDoubleConverter" />
+            <editors:StringWrapperToStringConverter x:Key="StringWrapperToStringConverter" />
         </ResourceDictionary>
 
     </Window.Resources>
@@ -31,13 +32,27 @@
             <!--<local:ListEditorView ItemsSource="{Binding ModelList}"/>-->
             <hc:PropertyGrid SelectedObject="{Binding DemoModel, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             
-            <hc:NumericUpDown Background="CornflowerBlue" Value="{Binding DemoModel.Integer, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Converter={StaticResource ICVariableNumericToDoubleConverter}}"/>
-            <TextBox Background="CornflowerBlue" Text="{Binding DemoModel.String, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
-            <hc:PropertyGrid SelectedObject="{Binding 
+            <hc:NumericUpDown Background="CornflowerBlue" 
+                              Value="{Binding 
+                Path=DemoModel.IntWrapperProp, 
+                UpdateSourceTrigger=PropertyChanged, 
+                Converter={StaticResource IntWrapperToDoubleConverter},
+                Mode=TwoWay}"/>
+            <TextBox Background="CornflowerBlue" 
+                     Text="{Binding DemoModel.StringWrapperProp, 
+                UpdateSourceTrigger=PropertyChanged, 
+                Converter={StaticResource StringWrapperToStringConverter},
+                Mode=TwoWay}"/>
+            <TextBox Background="CornflowerBlue" 
+                     Text="{Binding DemoModel.StringProp, 
+                UpdateSourceTrigger=PropertyChanged, 
+                Mode=TwoWay}"/>
+
+            <!--<hc:PropertyGrid SelectedObject="{Binding 
                                 Path=DemoModel.ListString[0], 
                                 Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged}"/>
+                                UpdateSourceTrigger=PropertyChanged}"/>-->
             <hc:NumericUpDown Background="Red" Value="{Binding 
                 Path=DemoModel.ListInt[0].Value, 
                 UpdateSourceTrigger=PropertyChanged, 

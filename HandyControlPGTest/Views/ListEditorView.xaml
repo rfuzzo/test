@@ -4,8 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HandyControlPGTest" 
-             xmlns:hc="https://handyorg.github.io/handycontrol" 
-             xmlns:model="clr-namespace:HandyControlPGTest.Model"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:editors="clr-namespace:HandyControlPGTest.Editors"
              xmlns:s="clr-namespace:System;assembly=mscorlib"
              d:DataContext="{d:DesignInstance Type=local:ListEditorView}"
@@ -28,7 +27,7 @@
                 <DataGrid ItemsSource="{Binding}"
                           CanUserSortColumns="False" >
                     <DataGrid.Columns>
-                        <DataGridTextColumn Width="Auto" 
+                        <DataGridTextColumn Width="*" 
                                             MinWidth="100"
                                             CanUserResize="True" 
                                             Binding="{Binding Path=Value,
@@ -46,7 +45,7 @@
 
             <!-- PropertyGridEditor -->
             <ControlTemplate x:Key="PropertyGridEditor" >
-                <TreeViewItem Selected="TreeViewItem_OnSelected" >
+                <TreeViewItem>
                     <TreeViewItem.Header>
                         <Grid>
                             <TextBlock Margin="30,0" Text="{Binding String}" DataContext="{Binding}"/>

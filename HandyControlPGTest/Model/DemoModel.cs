@@ -44,14 +44,29 @@ namespace HandyControlPGTest.Model
         }
     }
 
-    public class StringWrapper
+    public class StringWrapper : ObservableObject
     {
-        public StringWrapper(string v)
+        public StringWrapper(string value)
         {
-            Value = v;
+            Value = value;
         }
 
-        public string Value { get; set; }
+        //public string Value { get; set; }
+        public string Value
+        {
+            get => _value;
+            set
+            {
+                if (_value != value)
+                {
+                    var oldValue = _value;
+                    _value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
+        }
+
+        private string _value;
     }
 
 
@@ -59,10 +74,10 @@ namespace HandyControlPGTest.Model
     {
         public PropertyGridDemoModel()
         {
-            Integer = new IntWrapper(999);
+            IntWrapperProp = new IntWrapper(999);
+            StringWrapperProp = new StringWrapper("XXX");
 
             ListString = new ObservableCollection<DemoModel>();
-
             ListInt = new ObservableCollection<IntWrapper>();
 
             for (int i = 0; i < 5; i++)
@@ -94,9 +109,13 @@ namespace HandyControlPGTest.Model
         //[Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
         //public List<DemoModel> ListDemoModel { get; set; }
 
-        public string String { get; set; }
+        public string StringProp { get; set; }
 
-        public IntWrapper Integer { get; set; }
+        [Editor(typeof(IntWrapperEditor), typeof(PropertyEditorBase))]
+        public IntWrapper IntWrapperProp { get; set; }
+
+        [Editor(typeof(StringWrapperEditor), typeof(PropertyEditorBase))]
+        public StringWrapper StringWrapperProp { get; set; }
 
         public bool Boolean { get; set; }
 

@@ -21,10 +21,10 @@ namespace HandyControlPGTest
 
             DemoModel = new PropertyGridDemoModel
             {
-                String = "TestString",
+                StringProp = "TestString",
                 Enum = Gender.Female,
                 Boolean = true,
-                Integer = new IntWrapper(98),
+                IntWrapperProp = new IntWrapper(98),
                 //ListDemoModel = new List<DemoModel>() { new()
                 //{
                 //    dList = new List<DemoModel>(),

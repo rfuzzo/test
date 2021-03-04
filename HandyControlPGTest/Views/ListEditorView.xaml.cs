@@ -102,14 +102,5 @@ namespace HandyControlPGTest
 
             ContentControl.Content = treeview;
         }
-
-        private void TreeViewControl_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            
-        }
-
-        private void TreeViewItem_OnSelected(object sender, RoutedEventArgs e)
-        {
-        }
     }
 }
