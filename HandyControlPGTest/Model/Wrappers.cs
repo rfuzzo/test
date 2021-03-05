@@ -22,7 +22,7 @@ namespace HandyControlPGTest.Model
     }
 
     [Editor(typeof(IBoolEditor), typeof(IPropertyEditorBase))]
-    public class BoolWrapper : IREDBoolType, IREDBool
+    public class BoolWrapper : IREDBool
     {
         public bool Value { get; set; }
 

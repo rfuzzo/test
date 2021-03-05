@@ -20,15 +20,11 @@ namespace WolvenKit.Common.Model.Cr2w
 
 
 
-    public interface IREDPrimitive : IEditableVariable
-    {
-
-    }
+    public interface IREDPrimitive : IEditableVariable { }
 
     public interface IREDIntegerType : IREDPrimitive { }
     public interface IREDStringType : IREDPrimitive { }
-    public interface IREDBoolType : IREDPrimitive { }
-
+    public interface IREDBool : IREDPrimitive, IEditorBindable<bool> { }
 
     public interface IEditorBindable
     {
@@ -38,9 +34,7 @@ namespace WolvenKit.Common.Model.Cr2w
         public T Value { get; set; } // ???
     }
 
-    public interface IREDBool : IEditorBindable<bool>
-    {
-    }
+    
 
     public interface IEnumAccessor : IEditorBindable
     {

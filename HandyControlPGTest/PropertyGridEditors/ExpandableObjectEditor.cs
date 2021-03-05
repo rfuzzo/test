@@ -39,7 +39,7 @@ namespace WolvenKit.MVVM.Views.PropertyGridEditors
         }
 
         // bind the private dependency property to the UI element
-        private void CreateInnerBinding(DependencyObject element)
+        public override void CreateInnerBinding(DependencyObject element)
         {
             BindingOperations.SetBinding(
                 element,
