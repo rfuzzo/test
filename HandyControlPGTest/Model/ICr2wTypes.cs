@@ -40,7 +40,7 @@ namespace WolvenKit.Common.Model.Cr2w
     {
     }
 
-    public interface IEnumAccessor
+    public interface IEnumAccessor : IEditorBindable
     {
        
     }

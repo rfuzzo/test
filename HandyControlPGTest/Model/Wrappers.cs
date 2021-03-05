@@ -21,7 +21,7 @@ namespace HandyControlPGTest.Model
     }
 
     [Editor(typeof(IBoolEditor), typeof(IPropertyEditorBase))]
-    public class BoolWrapper : IEditableVariable, IEditorBindable<bool>
+    public class BoolWrapper : IEditableVariable, IREDBool
     {
         public bool Value { get; set; }
 

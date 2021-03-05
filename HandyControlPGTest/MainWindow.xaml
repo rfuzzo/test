@@ -32,13 +32,13 @@
                 SelectedObject="{Binding DemoModel, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
 
-            <ToggleButton Background="CornflowerBlue" 
+            <!--<ToggleButton Background="CornflowerBlue" 
                           HorizontalAlignment="Left"
                           Style="{StaticResource ToggleButtonSwitch}"
                           IsChecked="{Binding 
                 Path=DemoModel.BoolWrapperProp.Value, 
                 UpdateSourceTrigger=PropertyChanged, 
-                Mode=TwoWay}"/>
+                Mode=TwoWay}"/>-->
             <ComboBox Background="CornflowerBlue" 
                       ItemsSource="{Binding MockEnumSource}"
                       SelectedValue="{Binding 
@@ -49,15 +49,15 @@
                               Text="{Binding 
                 Path=DemoModel.IntWrapperProp.Value, 
                 UpdateSourceTrigger=PropertyChanged, 
-                Mode=TwoWay}"/>
-            <hc:TextBox  Background="CornflowerBlue" 
+                Mode=TwoWay}"/>-->
+            <!--<hc:TextBox  Background="CornflowerBlue" 
                          Text="{Binding 
                 Path=DemoModel.StringWrapperProp.Value, 
                 UpdateSourceTrigger=PropertyChanged, 
-                Mode=TwoWay}"/>
+                Mode=TwoWay}"/>-->
 
-            
-            <hc:NumericUpDown Background="Red" Value="{Binding 
+
+            <!--<hc:NumericUpDown Background="Red" Value="{Binding 
                 Path=DemoModel.ListInt[0].Value, 
                 UpdateSourceTrigger=PropertyChanged, 
                 Mode=TwoWay}"/>

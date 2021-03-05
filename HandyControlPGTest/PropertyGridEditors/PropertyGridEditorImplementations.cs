@@ -5,6 +5,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using HandyControl.Controls;
 using HandyControl.Tools;
+using HandyControlPGTest.Model;
 using WolvenKit.Common.Model.Cr2w;
 using WolvenKit.Common.Services;
 
@@ -43,7 +44,7 @@ namespace WolvenKit.MVVM.Views.PropertyGridEditors
     /// <summary>
     /// Propertygrid editor for CEnums
     /// </summary>
-    public class EnumEditor : EditorBase<IEnumAccessor<Enum>>, IEnumEditor
+    public class EnumEditor : EditorBase<IEnumAccessor>, IEnumEditor
     {
         private protected override FrameworkElement CreateInnerElement(PropertyItem propertyItem)
         {

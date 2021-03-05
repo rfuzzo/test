@@ -13,8 +13,8 @@ namespace HandyControlPGTest.Model
 {
     public class DemoModel
     {
-        [Category("Simple Wrappers")]
-        public BoolWrapper BoolWrapperProp { get; set; }
+        //[Category("Simple Wrappers")]
+        //public BoolWrapper BoolWrapperProp { get; set; }
         //[Category("Simple Wrappers")]
         //public IntWrapper IntWrapperProp { get; set; }
         //[Category("Simple Wrappers")]
@@ -29,7 +29,7 @@ namespace HandyControlPGTest.Model
 
         public DemoModel()
         {
-            BoolWrapperProp = new BoolWrapper(true);
+            //BoolWrapperProp = new BoolWrapper(true);
             //IntWrapperProp = new IntWrapper(444);
             //StringWrapperProp = new StringWrapper("aaa");
             EnumWrapperProp = new EnumWrapper<MyEnum>(MyEnum.Enumval2);
