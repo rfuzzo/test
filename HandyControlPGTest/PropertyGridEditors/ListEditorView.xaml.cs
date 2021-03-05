@@ -62,7 +62,7 @@ namespace WolvenKit.MVVM.Views.PropertyGridEditors
             // us the correct editor for the type
             switch (enumerable)
             {
-                case IEnumerable<IREDIntegerType> intwrapper:
+                case IEnumerable<IREDPrimitive> intwrapper:
                     InitNumericEditor(intwrapper);
                     break;
                 default:

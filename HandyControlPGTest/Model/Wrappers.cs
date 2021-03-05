@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,7 +11,7 @@ using WolvenKit.Common.Services;
 namespace HandyControlPGTest.Model
 {
     [Editor(typeof(ITextEditor<string>), typeof(IPropertyEditorBase))]
-    public class StringWrapper : IEditableVariable, IEditorBindable<string>
+    public class StringWrapper : IREDStringType, IEditorBindable<string>
     {
         public string Value { get; set; }
 
@@ -21,7 +22,7 @@ namespace HandyControlPGTest.Model
     }
 
     [Editor(typeof(IBoolEditor), typeof(IPropertyEditorBase))]
-    public class BoolWrapper : IEditableVariable, IREDBool
+    public class BoolWrapper : IREDBoolType, IREDBool
     {
         public bool Value { get; set; }
 
@@ -32,7 +33,7 @@ namespace HandyControlPGTest.Model
     }
 
     [Editor(typeof(ITextEditor<int>), typeof(IPropertyEditorBase))]
-    public class IntWrapper : IEditableVariable, IEditorBindable<int>
+    public class IntWrapper : IREDIntegerType, IEditorBindable<int>
     {
         public int Value { get; set; }
 
@@ -53,13 +54,22 @@ namespace HandyControlPGTest.Model
         }
     }
 
-    public class ListWrapper<T> : IEditableVariable
+    [Editor(typeof(ICollectionEditor), typeof(IPropertyEditorBase))]
+    public class ListWrapper<T> : IArrayAccessor
     {
-        public T Value { get; set; }
 
-        public ListWrapper(T value)
+
+        public IEnumerable<T> Value { get; set; }
+        
+
+        public ListWrapper(IEnumerable<T> value)
         {
             Value = value;
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable) Value).GetEnumerator();
         }
     }
 

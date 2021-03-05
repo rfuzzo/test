@@ -32,7 +32,7 @@ namespace HandyControlPGTest
             var serviceLocator = ServiceLocator.Default;
 
             // Register PropertyEditor services here to the UI
-            serviceLocator.RegisterType<ICollectionEditor, CollectionEditor>();
+            serviceLocator.RegisterType<ICollectionEditor, REDArrayEditor>();
             serviceLocator.RegisterType<IExpandableObjectEditor, ExpandableObjectEditor>();
 
             serviceLocator.RegisterType(typeof(ITextEditor<int>), typeof(TextEditor<IntWrapper>));

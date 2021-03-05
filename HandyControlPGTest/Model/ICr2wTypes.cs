@@ -13,19 +13,21 @@ namespace WolvenKit.Common.Model.Cr2w
     #region REDtypes
 
     [Editor(typeof(IExpandableObjectEditor), typeof(IPropertyEditorBase))]
-    public interface IEditableVariable
+    public interface IEditableVariable : IEditorBindable
     {
     }
 
 
 
 
-    public interface IREDPrimitive
+    public interface IREDPrimitive : IEditableVariable
     {
 
     }
 
     public interface IREDIntegerType : IREDPrimitive { }
+    public interface IREDStringType : IREDPrimitive { }
+    public interface IREDBoolType : IREDPrimitive { }
 
 
     public interface IEditorBindable
@@ -51,7 +53,7 @@ namespace WolvenKit.Common.Model.Cr2w
         
     }
 
-    public interface IArrayAccessor : IEditableVariable, IList
+    public interface IArrayAccessor : IEditableVariable, IEnumerable
     {
        
 
