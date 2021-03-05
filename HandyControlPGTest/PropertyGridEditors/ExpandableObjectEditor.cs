@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using HandyControl.Controls;
+using WolvenKit.Common.Services;
 
-namespace HandyControlPGTest.Editors
+namespace WolvenKit.MVVM.Views.PropertyGridEditors
 {
-    public class ExpandableObjectEditor : PropertyEditorBase
+    public class ExpandableObjectEditor : PropertyEditorBase, IExpandableObjectEditor
     {
         public override FrameworkElement CreateElement(PropertyItem propertyItem)
         {

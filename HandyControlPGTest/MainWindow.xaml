@@ -5,9 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HandyControlPGTest"
         xmlns:hc="https://handyorg.github.io/handycontrol"
-        xmlns:editors="clr-namespace:HandyControlPGTest.Editors"
         xmlns:model="clr-namespace:HandyControlPGTest.Model"
-        xmlns:s="clr-namespace:System;assembly=System.Runtime"
+        xmlns:s="clr-namespace:System;assembly=System.Runtime" 
         mc:Ignorable="d"
         Title="MainWindow" 
         d:DesignWidth="600"
@@ -21,8 +20,6 @@
                 <hc:ThemeResources RequestedTheme="Dark"/>
                 <hc:Theme/>
             </ResourceDictionary.MergedDictionaries>
-            <editors:IntWrapperToDoubleConverter x:Key="IntWrapperToDoubleConverter" />
-            <editors:StringWrapperToStringConverter x:Key="StringWrapperToStringConverter" />
         </ResourceDictionary>
 
     </Window.Resources>
@@ -30,29 +27,36 @@
         <StackPanel  Background="{DynamicResource RegionBrush}">
 
             <!--<local:ListEditorView ItemsSource="{Binding ModelList}"/>-->
-            <hc:PropertyGrid SelectedObject="{Binding DemoModel, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <hc:PropertyGrid 
+                PropertyResolver="{Binding PropertyResolver}"
+                SelectedObject="{Binding DemoModel, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+
+
+            <ToggleButton Background="CornflowerBlue" 
+                          HorizontalAlignment="Left"
+                          Style="{StaticResource ToggleButtonSwitch}"
+                          IsChecked="{Binding 
+                Path=DemoModel.BoolWrapperProp.Value, 
+                UpdateSourceTrigger=PropertyChanged, 
+                Mode=TwoWay}"/>
+            <ComboBox Background="CornflowerBlue" 
+                      ItemsSource="{Binding MockEnumSource}"
+                      SelectedValue="{Binding 
+                Path=DemoModel.EnumWrapperProp.Value, 
+                UpdateSourceTrigger=PropertyChanged, 
+                Mode=TwoWay}"/>
+            <!--<hc:TextBox Background="CornflowerBlue" 
+                              Text="{Binding 
+                Path=DemoModel.IntWrapperProp.Value, 
+                UpdateSourceTrigger=PropertyChanged, 
+                Mode=TwoWay}"/>
+            <hc:TextBox  Background="CornflowerBlue" 
+                         Text="{Binding 
+                Path=DemoModel.StringWrapperProp.Value, 
+                UpdateSourceTrigger=PropertyChanged, 
+                Mode=TwoWay}"/>
+
             
-
-            <hc:NumericUpDown Background="CornflowerBlue" 
-                              Value="{Binding 
-                Path=DemoModel.IntWrapperProp, 
-                UpdateSourceTrigger=PropertyChanged, 
-                Converter={StaticResource IntWrapperToDoubleConverter},
-                Mode=TwoWay}"/>
-            <TextBox Background="CornflowerBlue" 
-                     Text="{Binding DemoModel.StringWrapperProp, 
-                UpdateSourceTrigger=PropertyChanged, 
-                Converter={StaticResource StringWrapperToStringConverter},
-                Mode=TwoWay}"/>
-            <TextBox Background="CornflowerBlue" 
-                     Text="{Binding DemoModel.StringProp, 
-                UpdateSourceTrigger=PropertyChanged, 
-                Mode=TwoWay}"/>
-
-            <!--<hc:PropertyGrid SelectedObject="{Binding 
-                                Path=DemoModel.ListString[0], 
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged}"/>-->
             <hc:NumericUpDown Background="Red" Value="{Binding 
                 Path=DemoModel.ListInt[0].Value, 
                 UpdateSourceTrigger=PropertyChanged, 
@@ -78,25 +82,14 @@
 
                 </DataGrid.Columns>
 
-
-                <!--<TreeView.Resources>
-                    <DataTemplate DataType="{x:Type model:IntWrapper}">
-                        <hc:NumericUpDown Value="{Binding 
-                                Path=., 
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged,
-                                Converter={StaticResource ICVariableNumericToDoubleConverter}}"/>
-                    </DataTemplate>
-                </TreeView.Resources>-->
-
             </DataGrid>
 
             <TextBox 
                 Background="Green" 
-                Text="{Binding StringList[0].Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                Text="{Binding DemoModel.ListString[0].Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <TreeView 
                 Background="Green" 
-                ItemsSource="{Binding StringList, 
+                ItemsSource="{Binding DemoModel.ListString, 
                 UpdateSourceTrigger=PropertyChanged, 
                 Mode=TwoWay}">
 
@@ -105,7 +98,7 @@
                         <TextBlock Text="{Binding Value}" />
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
-            </TreeView>
+            </TreeView>-->
 
         </StackPanel>
     </hc:ScrollViewer>

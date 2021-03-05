@@ -7,10 +7,11 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
+using Catel.IoC;
 using HandyControl.Controls;
-using HandyControlPGTest.Editors;
 using HandyControlPGTest.Model;
-using Utilities;
+using WolvenKit.Common.Services;
+using WolvenKit.MVVM.Views.PropertyGridEditors;
 
 namespace HandyControlPGTest
 {
@@ -18,68 +19,35 @@ namespace HandyControlPGTest
     {
         public MainViewModel()
         {
+            RegisterServices();
 
-            DemoModel = new PropertyGridDemoModel
-            {
-                StringProp = "TestString",
-                Enum = Gender.Female,
-                Boolean = true,
-                IntWrapperProp = new IntWrapper(98),
-                //ListDemoModel = new List<DemoModel>() { new()
-                //{
-                //    dList = new List<DemoModel>(),
-                //    List = new List<string>(){"hhh", "jjj", "kkk"},
-                //    DdModel = new DemoModel(){String = "LLLLLLL"}
-                //}}
-            };
+            MockEnumSource = Enum.GetValues(typeof(MyEnum));
 
-            StringList = new ObservableCollection<StringWrapper>()
-            {
-                new("aaa"),
-                new("bbb"),
-                new("ccc")
-
-            };
-
-            ListInt = new ObservableCollection<IntWrapper>()
-            {
-                new(1),
-                new(2), 
-                new(3),
-                
-            };
-
-            ModelList = new()
-            {
-                new DemoModel()
-                {
-                    String = "AAA"
-                },
-                new DemoModel()
-                {
-                    String = "BBB"
-                },
-                new DemoModel()
-                {
-                    String = "CCC"
-                },
-            };
+            DemoModel = new DemoModel();
+            PropertyResolver = new MyPropertyResolver();
         }
 
-        private void StringListOnItemPropertyChanged(object? sender, ItemPropertyChangedEventArgs e)
+        private void RegisterServices()
         {
-            
+            var serviceLocator = ServiceLocator.Default;
+
+            // Register PropertyEditor services here to the UI
+            serviceLocator.RegisterType<ICollectionEditor, CollectionEditor>();
+            serviceLocator.RegisterType<IExpandableObjectEditor, ExpandableObjectEditor>();
+
+            serviceLocator.RegisterType(typeof(ITextEditor<int>), typeof(TextEditor<IntWrapper>));
+            serviceLocator.RegisterType(typeof(ITextEditor<string>), typeof(TextEditor<StringWrapper>));
+
+
+            serviceLocator.RegisterType(typeof(IBoolEditor), typeof(BoolEditor));
+            serviceLocator.RegisterType(typeof(IEnumEditor), typeof(EnumEditor));
         }
 
+        public DemoModel DemoModel { get; set; }
+        public PropertyResolver PropertyResolver { get; set; }
 
-        public PropertyGridDemoModel DemoModel { get; set; } 
-        public List<DemoModel> ModelList { get; set; }
+        public Array MockEnumSource { get; }
 
-
-        public ObservableCollection<IntWrapper> ListInt { get; set; }
-        public ObservableCollection<StringWrapper> StringList { get; set; }
-
-        
     }
 
     

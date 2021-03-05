@@ -7,126 +7,72 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using HandyControl.Controls;
-using HandyControlPGTest.Editors;
+using WolvenKit.MVVM.Views.PropertyGridEditors;
 
 namespace HandyControlPGTest.Model
 {
-    [Editor(typeof(ExpandableObjectEditor), typeof(PropertyEditorBase))]
     public class DemoModel
     {
+        [Category("Simple Wrappers")]
+        public BoolWrapper BoolWrapperProp { get; set; }
+        //[Category("Simple Wrappers")]
+        //public IntWrapper IntWrapperProp { get; set; }
+        //[Category("Simple Wrappers")]
+        //public StringWrapper StringWrapperProp { get; set; }
+        [Category("Simple Wrappers")]
+        public EnumWrapper<MyEnum> EnumWrapperProp { get; set; }
+
+        //[Category("Lists")]
+        //public List<IntWrapper> ListInt { get; set; }
+        //[Category("Lists")]
+        //public List<StringWrapper> ListString { get; set; }
+
         public DemoModel()
         {
-            //List = new List<string>();
-            //dList = new List<DemoModel>();
-            String = "TEST";
+            BoolWrapperProp = new BoolWrapper(true);
+            //IntWrapperProp = new IntWrapper(444);
+            //StringWrapperProp = new StringWrapper("aaa");
+            EnumWrapperProp = new EnumWrapper<MyEnum>(MyEnum.Enumval2);
+
+            //ListInt = new List<IntWrapper>()
+            //{
+            //    new(123),
+            //    new (234)
+            //};
+            //ListString = new List<StringWrapper>()
+            //{
+            //    new("AAA"),
+            //    new ("BBB")
+            //};
+
         }
 
-        public string String { get; set; }
-        public Gender Enum { get; set; }
-        public int Integer { get; set; }
-        //[Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        //public List<string> List { get; set; }
-        //[Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        //public List<DemoModel> dList { get; set; }
-
-        public DemoModel DdModel { get; set; }
-
-        public override string ToString() => String;
     }
 
-    public class IntWrapper
+    public class ComplexClass
     {
-        public int Value { get; set; }
-
-        public IntWrapper(int value)
-        {
-            Value = value;
-        }
-    }
-
-    public class StringWrapper : ObservableObject
-    {
-        public StringWrapper(string value)
-        {
-            Value = value;
-        }
-
-        //public string Value { get; set; }
-        public string Value
-        {
-            get => _value;
-            set
-            {
-                if (_value != value)
-                {
-                    var oldValue = _value;
-                    _value = value;
-                    OnPropertyChanged(nameof(Value));
-                }
-            }
-        }
-
-        private string _value;
-    }
-
-
-    public class PropertyGridDemoModel
-    {
-        public PropertyGridDemoModel()
-        {
-            IntWrapperProp = new IntWrapper(999);
-            StringWrapperProp = new StringWrapper("XXX");
-
-            ListString = new ObservableCollection<DemoModel>();
-            ListInt = new ObservableCollection<IntWrapper>();
-
-            for (int i = 0; i < 5; i++)
-            {
-                ListString.Add(new DemoModel());
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                ListInt.Add(new IntWrapper(i* 2));
-            }
-
-            //ListDemoModel = new List<DemoModel>();
-
-            DemoModel = new DemoModel()
-            {
-                Enum = Gender.Female,
-                String = "xxxx",
-                Integer = 790
-            };
-        }
-        public DemoModel DemoModel { get; set; }
-
-        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public ObservableCollection<DemoModel> ListString { get; set; }
-        [Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        public ObservableCollection<IntWrapper> ListInt { get; set; }
-
-        //[Editor(typeof(CollectionEditor), typeof(PropertyEditorBase))]
-        //public List<DemoModel> ListDemoModel { get; set; }
-
-        public string StringProp { get; set; }
-
-        [Editor(typeof(IntWrapperEditor), typeof(PropertyEditorBase))]
+        [Category("Simple Wrappers")]
+        public BoolWrapper BoolWrapperProp { get; set; }
+        [Category("Simple Wrappers")]
         public IntWrapper IntWrapperProp { get; set; }
-
-        [Editor(typeof(StringWrapperEditor), typeof(PropertyEditorBase))]
+        [Category("Simple Wrappers")]
         public StringWrapper StringWrapperProp { get; set; }
+        [Category("Simple Wrappers")]
+        public EnumWrapper<MyEnum> EnumWrapperProp { get; set; }
 
-        public bool Boolean { get; set; }
-
-        public Gender Enum { get; set; }
-        public ImageSource ImageSource { get; set; }
+        public ComplexClass()
+        {
+            BoolWrapperProp = new BoolWrapper(true);
+            IntWrapperProp = new IntWrapper(444);
+            StringWrapperProp = new StringWrapper("aaa");
+            EnumWrapperProp = new EnumWrapper<MyEnum>(MyEnum.Enumval2);
+        }
     }
 
-
-    public enum Gender
+    public enum MyEnum
     {
-        Male,
-        Female
+        Enumval1,
+        Enumval2
     }
+
 }
