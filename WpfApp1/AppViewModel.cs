@@ -23,10 +23,10 @@ namespace WpfApp1
         private readonly IWatcherService _watcherService;
 
         private readonly ReadOnlyObservableCollection<FileViewModel> _bindOut;
-        public ReadOnlyObservableCollection<FileViewModel> BindingModel => _bindOut;
+        public ReadOnlyObservableCollection<FileViewModel> BindOut => _bindOut;
 
-        private readonly ReadOnlyObservableCollection<NodeViewModel> _employeeViewModels;
-        public ReadOnlyObservableCollection<NodeViewModel> EmployeeViewModels => _employeeViewModels;
+        private readonly ReadOnlyObservableCollection<NodeViewModel> _bindOut2;
+        public ReadOnlyObservableCollection<NodeViewModel> BindOut2 => _bindOut2;
 
 
         public AppViewModel()
@@ -53,10 +53,10 @@ namespace WpfApp1
 
             //_watcherService.Files
             //    .Connect()
-            //    .TransformToTree(employee => employee.ParentHash, 
+            //    .TransformToTree(employee => employee.ParentHash,
             //        Observable.Return((Func<Node<FileModel, ulong>, bool>)DefaultPredicate))
             //    .Transform(node => new NodeViewModel(node))
-            //    .Bind(out _employeeViewModels)
+            //    .Bind(out _bindOut2)
             //    //.DisposeMany()
             //    .Subscribe(_ =>
             //    {

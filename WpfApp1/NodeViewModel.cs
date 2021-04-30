@@ -64,6 +64,11 @@ namespace WpfApp1
             });
         }
 
+        public string IconPath =>
+            Dto.IsDirectory
+                ? Children.Any() ? "FolderOpened" : "Folder"
+                : "File";
+
         public ulong Id { get; }
 
         public string Name { get; }

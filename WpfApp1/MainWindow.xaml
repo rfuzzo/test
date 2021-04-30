@@ -14,20 +14,58 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
             <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
 
         <Button x:Name="Button" Content="Click"/>
 
-        <!--<syncfusion:SfTreeView Grid.Row="2" x:Name="SfTreeView2"
+        <syncfusion:SfTreeView Grid.Row="2" x:Name="SfTreeView2"
                                AutoExpandMode="AllNodes"
                                ChildPropertyName="Children"
-                               ItemsSource="{Binding BindingModel}"
+                               ItemsSource="{Binding BindOut}"
         >
 
-        </syncfusion:SfTreeView>-->
+            <syncfusion:SfTreeView.ItemTemplate>
+                <DataTemplate>
+                    <Grid x:Name="grid">
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid>
+                                <iconPacks:PackIconCodicons Kind="{Binding IconPath, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            Width="16"
+                                                            Height="16"
+                                />
+                            </Grid>
+                            <Grid Grid.Column="1"
+                                  Margin="1,0,0,0"
+                                  VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}"
+                                           Foreground="Black"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
 
-        <TreeView Grid.Row="1"  x:Name="TreeView" 
-                  ItemsSource="{Binding BindingModel}"
+
+            </syncfusion:SfTreeView.ItemTemplate>
+
+
+
+
+        </syncfusion:SfTreeView>
+
+
+
+
+
+
+        <!--<TreeView Grid.Row="1"  x:Name="TreeView" 
+                  ItemsSource="{Binding BindOut}"
         >
             <TreeView.Resources>
 
@@ -67,6 +105,6 @@
                     </Grid>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
-        </TreeView>
+        </TreeView>-->
     </Grid>
 </Window>
