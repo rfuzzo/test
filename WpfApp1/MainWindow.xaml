@@ -27,7 +27,7 @@
         </syncfusion:SfTreeView>-->
 
         <TreeView Grid.Row="1"  x:Name="TreeView" 
-                  ItemsSource="{Binding EmployeeViewModels}"
+                  ItemsSource="{Binding BindingModel}"
         >
             <TreeView.Resources>
 
@@ -37,7 +37,7 @@
                     <Setter Property="IsSelected" Value="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                 </Style>
 
-                <HierarchicalDataTemplate DataType="{x:Type local:NodeViewModel}"
+                <HierarchicalDataTemplate DataType="{x:Type basic:FileViewModel}"
                                       ItemsSource="{Binding Children}">
                     <Grid x:Name="grid">
                         <Grid Grid.Row="0">

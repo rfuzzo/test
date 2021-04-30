@@ -54,13 +54,13 @@ namespace WolvenManager.App.Services
             var myComparer = SortExpressionComparer<FileViewModel>.Ascending(p => p.Name);
 
 
-            //Files.Connect()
-            //    .Transform(_ => new FileViewModel(_))
-            //    .Sort(myComparer)
-            //    .ObserveOnDispatcher()
-            //    .Bind(out _bindingModel)
-            //    .Subscribe(OnNext)
-            //    ;
+            Files.Connect()
+                .Transform(_ => new FileViewModel(_))
+                .Sort(myComparer)
+                .ObserveOnDispatcher()
+                .Bind(out _bindingModel)
+                .Subscribe(OnNext)
+                ;
 
 
         }

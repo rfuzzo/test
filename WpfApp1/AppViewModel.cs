@@ -38,30 +38,30 @@ namespace WpfApp1
 
             DbgCommand =  ReactiveCommand.Create(Execute);
 
-            //_watcherService.BindingModel.ToObservableChangeSet()
-            //    .Filter(_ => _.ParentHash == 0)
-            //    .Bind(out _bindOut)
-            //    .Subscribe();
+            _watcherService.BindingModel.ToObservableChangeSet()
+                .Filter(_ => _.ParentHash == 0)
+                .Bind(out _bindOut)
+                .Subscribe();
 
-            bool DefaultPredicate(Node<FileModel, ulong> node) => true;
+            //bool DefaultPredicate(Node<FileModel, ulong> node) => true;
 
-            _watcherService.Files.Connect()
-                .Subscribe(_ =>
-            {
+            //_watcherService.Files.Connect()
+            //    .Subscribe(_ =>
+            //{
 
-            });
+            //});
 
-            _watcherService.Files
-                .Connect()
-                .TransformToTree(employee => employee.ParentHash, 
-                    Observable.Return((Func<Node<FileModel, ulong>, bool>)DefaultPredicate))
-                .Transform(node => new NodeViewModel(node))
-                .Bind(out _employeeViewModels)
-                //.DisposeMany()
-                .Subscribe(_ =>
-                {
+            //_watcherService.Files
+            //    .Connect()
+            //    .TransformToTree(employee => employee.ParentHash, 
+            //        Observable.Return((Func<Node<FileModel, ulong>, bool>)DefaultPredicate))
+            //    .Transform(node => new NodeViewModel(node))
+            //    .Bind(out _employeeViewModels)
+            //    //.DisposeMany()
+            //    .Subscribe(_ =>
+            //    {
 
-                });
+            //    });
 
         }
 
