@@ -36,7 +36,7 @@ namespace HandyControlPGTest.Model
         public DemoModel()
         {
             BoolWrapperProp = new BoolWrapper(true);
-            IntWrapperProp = new IntWrapper(444);
+            IntWrapperProp = new IntWrapper();
             StringWrapperProp = new StringWrapper("aaa");
             EnumWrapperProp = new EnumWrapper<MyEnum>(MyEnum.Enumval2);
 

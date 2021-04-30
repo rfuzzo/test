@@ -36,7 +36,7 @@
                 PropertyResolver="{Binding PropertyResolver}"
                 SelectedObject="{Binding DemoModel.ComplexClassProp, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>-->
 
-            <!--<ToggleButton Background="CornflowerBlue" 
+            <ToggleButton Background="CornflowerBlue" 
                           HorizontalAlignment="Left"
                           Style="{StaticResource ToggleButtonSwitch}"
                           IsChecked="{Binding 
@@ -58,7 +58,7 @@
                          Text="{Binding 
                 Path=DemoModel.StringWrapperProp.Value, 
                 UpdateSourceTrigger=PropertyChanged, 
-                Mode=TwoWay}"/>-->
+                Mode=TwoWay}"/>
 
 
             <hc:NumericUpDown Background="Red" Value="{Binding 

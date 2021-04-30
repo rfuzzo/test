@@ -5,15 +5,37 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using WolvenKit.Common.Model.Cr2w;
 using WolvenKit.Common.Services;
 
 namespace HandyControlPGTest.Model
 {
     [Editor(typeof(ITextEditor<string>), typeof(IPropertyEditorBase))]
-    public class StringWrapper : IREDStringType, IEditorBindable<string>
+    public class StringWrapper : ObservableObject, IREDStringType, IEditorBindable<string>
     {
-        public string Value { get; set; }
+        //public string Value { get; set; }
+
+        public string Value
+        {
+            get => _value;
+            set
+            {
+                if (_value != value)
+                {
+                    var oldValue = _value;
+                    _value = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
+        }
+
+        private string _value;
+
+        private void OnTargetUpdated(Object sender, DataTransferEventArgs args)
+        {
+
+        }
 
         public StringWrapper(string value)
         {
@@ -36,6 +58,11 @@ namespace HandyControlPGTest.Model
     public class IntWrapper : IREDIntegerType, IEditorBindable<int>
     {
         public int Value { get; set; }
+
+        public IntWrapper()
+        {
+
+        }
 
         public IntWrapper(int value)
         {

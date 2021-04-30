@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
+using Catel.MVVM.Views;
 using HandyControl.Controls;
 using WolvenKit.Common.Model.Cr2w;
 
@@ -42,7 +43,8 @@ namespace WolvenKit.MVVM.Views.PropertyGridEditors
         }
 
         // bind the private dependency property to the UI element
-        public virtual void CreateInnerBinding(DependencyObject element) =>
+        public virtual void CreateInnerBinding(DependencyObject element)
+        {
             BindingOperations.SetBinding(
                 element,
                 GetInnerDependencyProperty(),
@@ -51,7 +53,20 @@ namespace WolvenKit.MVVM.Views.PropertyGridEditors
                     Source = this,
                     Mode = BindingMode.TwoWay,
                     UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+                    NotifyOnSourceUpdated = true,
                 });
+            if (element is FrameworkElement frameworkElement)
+            {
+                frameworkElement.SourceUpdated += FrameworkElementOnSourceUpdated;
+            }
+        }
+
+        private void FrameworkElementOnSourceUpdated(object? sender, DataTransferEventArgs e)
+        {
+            
+
+        }
+
 
         #endregion
 
