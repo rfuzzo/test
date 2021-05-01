@@ -17,10 +17,7 @@ namespace WolvenManager.App.Services
         public bool IsSuspended { get; set; }
 
         public IObservableCache<FileModel, ulong> Files { get; }
-
-        //public IObservable<IChangeSet<FileViewModel, ulong>> Connect();
-        //public ReadOnlyObservableCollection<FileViewModel> BindingModel { get; }
-
+        
         public void Dbg();
     }
 }
