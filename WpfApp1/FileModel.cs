@@ -57,6 +57,16 @@ namespace WolvenKit.Models
 
         public ulong ParentHash { get; }
 
+        //public string IconPath =>
+        //    IsDirectory
+        //        ? Children is { Count: > 0 } ? "FolderOpened" : "Folder"
+        //        : "File";
+
+        public string IconPath =>
+            IsDirectory
+                ? "Folder"
+                : "File";
+
         #endregion
 
 

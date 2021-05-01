@@ -23,6 +23,8 @@ namespace WpfApp1
         private bool _isExpanded;
         private bool _isSelected;
         private ReadOnlyObservableCollection<NodeViewModel> _children;
+        public ReadOnlyObservableCollection<NodeViewModel> Children => _children;
+
 
         public NodeViewModel(Node<FileModel, ulong> node, NodeViewModel parent = null)
         {
@@ -34,34 +36,36 @@ namespace WpfApp1
             Dto = node.Item;
 
             //Wrap loader for the nested view model inside a lazy so we can control when it is invoked
-            var childrenLoader = new Lazy<IDisposable>(() => node.Children.Connect()
+            /*var childrenLoader = new Lazy<IDisposable>(() => */node.Children.Connect()
                                 .Transform(e => new NodeViewModel(e, this))
                                 .Bind(out _children)
-                                .DisposeMany()
-                                .Subscribe());
+                                //.DisposeMany()
+                                .Subscribe()
+                                //)
+                                ;
 
             //return true when the children should be loaded 
             //(i.e. if current node is a root, otherwise when the parent expands)
             var shouldExpand = node.IsRoot
                 ? Observable.Return(true)
-                : Parent.Value.WhenValueChanged(This => This.IsExpanded);
+                : Observable.Return(true);//Parent.Value.WhenValueChanged(This => This.IsExpanded);
 
-            //wire the observable
-            var expander = shouldExpand
-                    .Where(isExpanded => isExpanded)
-                    .Take(1)
-                    .Subscribe(_ =>
-                    {
-                        //force lazy loading
-                        var x = childrenLoader.Value;
-                    });
+            ////wire the observable
+            //var expander = shouldExpand
+            //        .Where(isExpanded => isExpanded)
+            //        .Take(1)
+            //        .Subscribe(_ =>
+            //        {
+            //            //force lazy loading
+            //            var x = childrenLoader.Value;
+            //        });
 
-            _cleanUp = Disposable.Create(() =>
-            {
-                expander.Dispose();
-                if (childrenLoader.IsValueCreated)
-                    childrenLoader.Value.Dispose();
-            });
+            //_cleanUp = Disposable.Create(() =>
+            //{
+            //    expander.Dispose();
+            //    if (childrenLoader.IsValueCreated)
+            //        childrenLoader.Value.Dispose();
+            //});
         }
 
         public string IconPath =>
@@ -81,7 +85,6 @@ namespace WpfApp1
 
         public Optional<NodeViewModel> Parent { get; }
 
-        public ReadOnlyObservableCollection<NodeViewModel> Children => _children;
 
         public bool IsExpanded
         {
@@ -131,7 +134,7 @@ namespace WpfApp1
 
         public void Dispose()
         {
-            _cleanUp.Dispose();
+            //_cleanUp.Dispose();
         }
     }
 

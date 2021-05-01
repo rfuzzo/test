@@ -24,10 +24,13 @@ namespace WolvenKit.ViewModels.Editor.Basic
         public FileViewModel(FileModel model)
         {
             Item = model;
+            var myComparer = SortExpressionComparer<FileViewModel>.Ascending(p => p.Name);
 
             this.ChildrenCache.Connect()
                 //.ObserveOn(RxApp.MainThreadScheduler)
-                .Bind(out _children).Subscribe();
+                .Sort(myComparer)
+                .Bind(out _children)
+                .Subscribe();
         }
 
         public FileViewModel(FileModel model, IObservableCache<Node<FileModel, ulong>, ulong> children) : this(model)

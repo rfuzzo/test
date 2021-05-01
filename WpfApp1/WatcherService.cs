@@ -33,12 +33,12 @@ namespace WolvenManager.App.Services
         private FileSystemWatcher _modsWatcher;
 
 
-        private readonly ReadOnlyObservableCollection<FileViewModel> _bindingModel;
-        public ReadOnlyObservableCollection<FileViewModel> BindingModel => _bindingModel;
+        //private readonly ReadOnlyObservableCollection<FileViewModel> _bindingModel;
+        //public ReadOnlyObservableCollection<FileViewModel> BindingModel => _bindingModel;
 
 
-        private readonly SourceCache<FileViewModel, ulong> _topnodes = new(_ => _.Hash);
-        public IObservable<IChangeSet<FileViewModel, ulong>> Connect() => _topnodes.Connect();
+        //private readonly SourceCache<FileViewModel, ulong> _topnodes = new(_ => _.Hash);
+        //public IObservable<IChangeSet<FileViewModel, ulong>> Connect() => _topnodes.Connect();
 
 
 
@@ -51,34 +51,80 @@ namespace WolvenManager.App.Services
             WatchLocation(GetLocation());
             DetectProjectFiles(GetLocation());
 
-            var myComparer = SortExpressionComparer<FileViewModel>.Ascending(p => p.Name);
-
-
-            Files.Connect()
-                .Transform(_ => new FileViewModel(_))
-                .Sort(myComparer)
-                .ObserveOnDispatcher()
-                .Bind(out _bindingModel)
-                .Subscribe(OnNext)
-                ;
-
-
+            //Files.Connect()
+            //    .Transform(_ => new FileViewModel(_))
+            //    .ObserveOnDispatcher()
+            //    .Bind(out _bindingModel)
+            //    .Subscribe(OnNext);
         }
 
 
-        private void OnNext(IChangeSet<FileViewModel, ulong> obj)
-        {
-            var lookup = _bindingModel.ToLookup(x => x.ParentHash);
-            foreach (var model in _bindingModel)
-            {
-                model.ChildrenCache.Edit(inner =>
-                    {
-                        inner.Clear();
-                        inner.AddOrUpdate(lookup[model.Hash]);
-                    }
-                );
-            }
-        }
+        //private void OnNext(IChangeSet<FileViewModel, ulong> obj)
+        //{
+            
+        //    var lookup = _bindingModel.ToLookup(x => x.ParentHash);
+        //    var flat = BindingModel.ToDictionary(_ => _.Hash, _ => _);
+
+        //    foreach (var change in obj)
+        //    {
+        //        var model = change.Current;
+        //        var hash = model.Hash;
+        //        var parentHash = model.ParentHash;
+
+                
+               
+        //        var childrenOfCurrent = lookup[hash];
+
+        //        switch (change.Reason)
+        //        {
+        //            case ChangeReason.Add:
+        //                // add it to the parent
+        //                if (parentHash != 0)
+        //                {
+        //                    if (!flat.ContainsKey(parentHash))
+        //                    {
+        //                        // queue it
+        //                        Debugger.Log(2, "FuzzyLog", $"---------------- OnNext - not found: {parentHash}\n");
+        //                    }
+        //                    else
+        //                    {
+        //                        var parent = flat[parentHash];
+        //                        if (!parent.ChildrenCache.Keys.Contains(hash))
+        //                        {
+        //                            parent.ChildrenCache.AddOrUpdate(model);
+        //                        }
+        //                    }
+        //                }
+        //                break;
+        //            case ChangeReason.Update:
+        //                break;
+        //            case ChangeReason.Remove:
+        //                break;
+        //            case ChangeReason.Refresh:
+        //                break;
+        //            case ChangeReason.Moved:
+        //                break;
+        //            default:
+        //                throw new ArgumentOutOfRangeException();
+        //        }
+        //    }
+
+
+        //    //foreach (var model in _bindingModel)
+        //    //{
+        //    //    if (obj.Removes > 0)
+        //    //    {
+        //    //        model.ChildrenCache.Clear();
+        //    //    }
+
+        //    //    model.ChildrenCache.Edit(inner =>
+        //    //        {
+        //    //            inner.Clear();
+        //    //            inner.AddOrUpdate(lookup[model.Hash]);
+        //    //        }
+        //    //    );
+        //    //}
+        //}
 
         public void Dbg()
         {

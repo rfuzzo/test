@@ -22,11 +22,15 @@ namespace WpfApp1
     {
         private readonly IWatcherService _watcherService;
 
-        private readonly ReadOnlyObservableCollection<FileViewModel> _bindOut;
-        public ReadOnlyObservableCollection<FileViewModel> BindOut => _bindOut;
+        //private readonly ReadOnlyObservableCollection<FileViewModel> _bindOut;
+        //public ReadOnlyObservableCollection<FileViewModel> BindOut => _bindOut;
 
-        private readonly ReadOnlyObservableCollection<NodeViewModel> _bindOut2;
-        public ReadOnlyObservableCollection<NodeViewModel> BindOut2 => _bindOut2;
+        //private readonly ReadOnlyObservableCollection<NodeViewModel> _bindOut2;
+        //public ReadOnlyObservableCollection<NodeViewModel> BindOut2 => _bindOut2;
+
+        //
+        private readonly ReadOnlyObservableCollection<FileModel> _bindGrid;
+        public ReadOnlyObservableCollection<FileModel> BindGrid => _bindGrid;
 
 
         public AppViewModel()
@@ -34,28 +38,47 @@ namespace WpfApp1
             _watcherService = Locator.Current.GetService<IWatcherService>();
 
 
-            
+
 
             DbgCommand =  ReactiveCommand.Create(Execute);
 
-            _watcherService.BindingModel.ToObservableChangeSet()
-                .Filter(_ => _.ParentHash == 0)
-                .Bind(out _bindOut)
+            //_watcherService.BindingModel.ToObservableChangeSet()
+                
+            //    .Filter(_ => _.ParentHash == 0)
+            //    .Bind(out _bindOut)
+            //    .Subscribe();
+
+            _watcherService.Files
+                .Connect()
+                .Bind(out _bindGrid)
                 .Subscribe();
 
-            //bool DefaultPredicate(Node<FileModel, ulong> node) => true;
+            //bool DefaultPredicate(Node<FileModel, ulong> node) => true; ;
 
             //_watcherService.Files.Connect()
-            //    .Subscribe(_ =>
-            //{
+            //    .ForEachChange(_ =>
+            //    {
 
-            //});
+            //    })
+            //    .TransformToTree(x => x.ParentHash)
+            //    .ForEachChange(_ =>
+            //    {
+
+            //    })
+            //    .ObserveOnDispatcher()
+            //    .Transform(node => new NodeViewModel(node))
+            //    .Bind(out _bindOut2)
+            //        //.DisposeMany()
+            //        .Subscribe(_ =>
+            //        {
+
+            //        });
 
             //_watcherService.Files
             //    .Connect()
-            //    .TransformToTree(employee => employee.ParentHash,
-            //        Observable.Return((Func<Node<FileModel, ulong>, bool>)DefaultPredicate))
+            //    .TransformToTree(x => x.ParentHash)
             //    .Transform(node => new NodeViewModel(node))
+            //    .ObserveOnDispatcher()
             //    .Bind(out _bindOut2)
             //    //.DisposeMany()
             //    .Subscribe(_ =>
