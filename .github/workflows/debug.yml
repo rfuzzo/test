@@ -29,5 +29,5 @@ jobs:
     - run: echo "${{steps.get-version.outputs.version}}"
     
     - name: Set the value
-      run: echo "VERSION=${{steps.get-version.outputs.version}}" >> $GITHUB_ENV
+      run: echo "VERSION=${{steps.get-version.outputs.version}}" >> $env:GITHUB_ENV
     - run: echo "${{env.VERSION}}"
