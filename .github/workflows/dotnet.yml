@@ -28,6 +28,10 @@ jobs:
       with:
         proj-path: .\WpfApp1\WpfApp1.csproj
     - run: echo "${{steps.get-version.outputs.version}}"
+    - name: Set environment variables
+      env:
+        VERSION: "${{steps.get-version.outputs.version}}"
+
       
     - name: Publish app
       run: dotnet publish .\WpfApp1\WpfApp1.csproj -o publish/full --no-self-contained --no-restore -r win-x64 -c Release -f net5.0-windows
@@ -46,12 +50,11 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1.8.6
       with:
-        tag: ${{ github.sha }}
+        name: WolvenManager-${{env.VERSION}}
+        tag: ${{env.VERSION}}
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: true      
-        artifacts: |
-          artifact1, 
-          artifact2.txt
+        artifacts: 'artifact1,artifact2.txt'
         
   
   
