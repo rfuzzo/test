@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  
+  release:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: dotnet clean
+      run: dotnet clean --configuration Release && dotnet nuget locals all --clear
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Get version
+      uses: naminodarie/get-net-sdk-project-versions-action@v1
+      id: get-version
+      with:
+        proj-path: .\WpfApp1\WpfApp1.csproj
+    - run: echo "${{steps.get-version.outputs.version}}"
+      
+    - name: Publish app
+      run: dotnet publish .\WpfApp1\WpfApp1.csproj -o publish/full --no-self-contained --no-restore -r win-x64 -c Release -f net5.0-windows
+   
+    - name: Upload Artifact App
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact1
+        path: ./publish/full
+    - name: Upload Artifact Installer
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact2.txt
+        path: .\publish\full\test\Mod\base\test.txt
+        
+    - name: Create Release
+      uses: ncipollo/release-action@v1.8.6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: commit-${{ github.sha }}
+        draft: true      
+        release_name: rest - ${{steps.get-version.outputs.version}}
+        artifacts: |
+          "artifact1", 
+          "artifact2.txt"
+        
+  
+  
+  
+  
+  
+  
