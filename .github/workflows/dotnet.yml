@@ -25,7 +25,6 @@ jobs:
       with:
         proj-path: .\WpfApp1\WpfApp1.csproj
     - run: echo "VERSION=${{steps.get-version.outputs.version}}" >> $env:GITHUB_ENV
-    - run: echo "${{env.VN}}"
       
     - name: Publish app
       run: dotnet publish .\WpfApp1\WpfApp1.csproj -o publish/full --no-self-contained --no-restore -r win-x64 -c Release -f net5.0-windows
@@ -50,8 +49,8 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: true      
         artifacts: |
-          'artifact1'
-          'artifact2.txt'
+          artifact1
+          artifact2.txt
         
   
   
