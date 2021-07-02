@@ -24,12 +24,7 @@ jobs:
       id: get-version
       with:
         proj-path: .\WpfApp1\WpfApp1.csproj
-      env:
-        VN: "${{steps.get-version.outputs.version}}"
     - run: echo "VERSION=${{steps.get-version.outputs.version}}" >> $env:GITHUB_ENV
-    - run: echo "${{env.VERSION}}"
-    - run: echo "${{steps.get-version.env.VN}}"
-    - run: echo "${{steps.get-version.VN}}"
     - run: echo "${{env.VN}}"
       
     - name: Publish app
@@ -40,8 +35,10 @@ jobs:
       with:
         name: artifact1
         path: ./publish/full
+        output: "${{env.A1}}"
       env:
         A1: artifact1
+      
 
     - name: Upload Artifact Installer
       uses: actions/upload-artifact@v2
