@@ -31,7 +31,7 @@ jobs:
       run: echo "${{steps.get-version.outputs.version}}"
       env:
         VERSION: "${{steps.get-version.outputs.version}}"
-    - run: echo ${{env.VERSION}}
+    - run: echo "${{env.VERSION}}"
       
 
       
@@ -53,7 +53,7 @@ jobs:
       uses: ncipollo/release-action@v1.8.6
       with:
         name: WolvenManager-${{env.VERSION}}
-        tag: ${{ github.sha }}
+        tag: "${{env.VERSION}}"
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: true      
         artifacts: 'artifact1,artifact2.txt'
