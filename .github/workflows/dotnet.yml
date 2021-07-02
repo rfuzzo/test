@@ -46,13 +46,10 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1.8.6
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: commit-${{ github.sha }}
         draft: true      
-        release_name: rest - ${{steps.get-version.outputs.version}}
         artifacts: |
-          "artifact1", 
-          "artifact2.txt"
+          artifact1, 
+          artifact2.txt
         
   
   
