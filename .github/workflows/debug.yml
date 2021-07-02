@@ -18,9 +18,10 @@ jobs:
       id: get-version
       with:
         proj-path: .\WpfApp1\WpfApp1.csproj
+    - run: echo "${{steps.get-version.outputs.version}}"
     - name: Set the value
       env:
         VERSION: "${{steps.get-version.outputs.version}}"
       run: |
-        echo "${{steps.get-version.outputs.version}}" >> $GITHUB_ENV
+        echo echo "VERSION=${{steps.get-version.outputs.version}}" >> $GITHUB_ENV
     - run: echo "${{env.VERSION}}"
