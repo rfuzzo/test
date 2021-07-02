@@ -35,10 +35,6 @@ jobs:
       with:
         name: artifact1
         path: ./publish/full
-        output: "${{env.A1}}"
-      env:
-        A1: artifact1
-      
 
     - name: Upload Artifact Installer
       uses: actions/upload-artifact@v2
@@ -47,13 +43,15 @@ jobs:
         path: .\publish\full\test\Mod\base\test.txt
         
     - name: Create Release
-      uses: ncipollo/release-action@v1.8.6
+      uses: ncipollo/release-action@v1
       with:
-        name: WolvenManager-${{env.VERSION}}
+        name: Wolven Manager v${{env.VERSION}}
         tag: "${{env.VERSION}}"
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: true      
-        artifacts: 'artifact1,artifact2.txt'
+        artifacts: |
+          'artifact1'
+          'artifact2.txt'
         
   
   
