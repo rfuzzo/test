@@ -131,11 +131,12 @@ namespace WolvenManager.App.Services
                     var hash = FNV1A64HashAlgorithm.HashString(FileModel.GetRelativeName(e.FullPath));
                     _files.Edit(inner =>
                     {
-                        inner.RemoveKeys(GetChildrenKeysRecursive(hash));
+                        //inner.RemoveKeys(GetChildrenKeysRecursive(hash));
                         inner.Remove(hash);
                     });
                     break;
                 case WatcherChangeTypes.Renamed:
+                    _files.AddOrUpdate(new FileModel(e.FullPath));
                     break;
                 case WatcherChangeTypes.All:
                     break;
