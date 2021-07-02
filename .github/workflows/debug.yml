@@ -1,0 +1,25 @@
+name: .NET
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Get version
+      uses: naminodarie/get-net-sdk-project-versions-action@v1
+      id: get-version
+      with:
+        proj-path: .\WpfApp1\WpfApp1.csproj
+    - name: Set the value
+      env:
+        VERSION: "${{steps.get-version.outputs.version}}"
+      run: |
+        echo "${{steps.get-version.outputs.version}}" >> $GITHUB_ENV
+    - run: echo "${{env.VERSION}}"
