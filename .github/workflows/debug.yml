@@ -12,6 +12,16 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - name: Set the value
+      id: step_one
+      run: |
+        echo "action_state=yellow" >> $GITHUB_ENV
+    - name: Use the value
+      id: step_two
+      run: |
+        echo "${{ env.action_state }}" # This will output 'yellow'
+    
+    
     - uses: actions/checkout@v2
     - name: Get version
       uses: naminodarie/get-net-sdk-project-versions-action@v1
@@ -20,8 +30,6 @@ jobs:
         proj-path: .\WpfApp1\WpfApp1.csproj
     - run: echo "${{steps.get-version.outputs.version}}"
     - name: Set the value
-      env:
-        VERSION: "${{steps.get-version.outputs.version}}"
       run: |
-        echo echo "VERSION=${{steps.get-version.outputs.version}}" >> $GITHUB_ENV
+        echo "VERSION=${{steps.get-version.outputs.version}}" >> $GITHUB_ENV
     - run: echo "${{env.VERSION}}"
