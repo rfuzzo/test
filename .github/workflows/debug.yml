@@ -1,4 +1,4 @@
-name: .NET
+name: test
 
 on:
   workflow_dispatch:
@@ -12,6 +12,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - uses: actions/checkout@v2
     - name: Get version
       uses: naminodarie/get-net-sdk-project-versions-action@v1
       id: get-version
