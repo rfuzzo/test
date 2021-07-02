@@ -27,10 +27,12 @@ jobs:
       id: get-version
       with:
         proj-path: .\WpfApp1\WpfApp1.csproj
-    - run: echo "${{steps.get-version.outputs.version}}"
     - name: Set environment variables
+      run: echo "${{steps.get-version.outputs.version}}"
       env:
         VERSION: "${{steps.get-version.outputs.version}}"
+    
+      
 
       
     - name: Publish app
