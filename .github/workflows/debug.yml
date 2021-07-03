@@ -29,4 +29,26 @@ jobs:
     - run: echo "${{steps.set.VN}}"
     - run: echo "${{env.VN}}"
     - run: echo "${{env.VERSION}}"
+    - run: echo "PORTABLE=artifact1" >> $env:GITHUB_ENV
+    - run: echo "INSTALLER=artifact2.txt" >> $env:GITHUB_ENV
+
+    # Upload artifacts
+    - name: Upload Artifact App
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{env.PORTABLE}}
+        path: ./publish/full
+    - name: Upload Artifact Installer
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{env.INSTALLER}}
+        path: .\publish\full\test\Mod\base\test.txt
+    - uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: |
+          ./publish/full
+          .\publish\full\test\Mod\base\test.txt
+
+
 
