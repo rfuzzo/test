@@ -11,8 +11,18 @@ jobs:
 
     runs-on: windows-latest
 
-    steps:
+   steps:
     - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: dotnet clean
+      run: dotnet clean --configuration Release && dotnet nuget locals all --clear
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Publish app
+      run: dotnet publish .\WpfApp1\WpfApp1.csproj -o publish/full --no-self-contained --no-restore -r win-x64 -c Release -f net5.0-windows
     
     - name: Get version
       uses: naminodarie/get-net-sdk-project-versions-action@v1
