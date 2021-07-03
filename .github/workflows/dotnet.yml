@@ -44,8 +44,12 @@ jobs:
         name: ${{env.INSTALLER}}
         path: .\publish\full\test\Mod\base\test.txt
         
+     # RELEASE
     - name: Generate Changelog
-      run: echo "# Good things have arrived" > .\CHANGELOG.txt
+      run: |
+        for /f %%i in ('git describe --tags --abbrev^=0') do set lastrelease=%%i
+        git log %lastrelease%..HEAD --oneline
+        > ./CHANGELOG.txt
         
     - name: Release
       uses: softprops/action-gh-release@v1
