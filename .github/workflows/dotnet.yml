@@ -45,13 +45,10 @@ jobs:
         path: .\publish\full\test\Mod\base\test.txt
         
      # RELEASE
-    - name: Generate Changelog
-      run: .\create-changelog.bat > ./CHANGELOG.txt
-        
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        body_path: .\CHANGELOG.txt
+        body_path: .\CHANGELOG.md
         files: |
           .\publish\full\test\Mod\base\test.txt
           LICENSE
