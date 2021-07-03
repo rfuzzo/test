@@ -46,10 +46,7 @@ jobs:
         
      # RELEASE
     - name: Generate Changelog
-      run: |
-        for /f %%i in ('git describe --tags --abbrev^=0') do set lastrelease=%%i
-        git log %lastrelease%..HEAD --oneline
-        > ./CHANGELOG.txt
+      run: .\create-changelog.bat > ./CHANGELOG.txt
         
     - name: Release
       uses: softprops/action-gh-release@v1
