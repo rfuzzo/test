@@ -18,37 +18,40 @@ jobs:
       run: dotnet clean --configuration Release && dotnet nuget locals all --clear
     - name: Restore dependencies
       run: dotnet restore
-      
+    - name: Publish app
+      run: dotnet publish .\WpfApp1\WpfApp1.csproj -o publish/full --no-self-contained --no-restore -r win-x64 -c Release -f net5.0-windows
+   
     - name: Get version
       uses: naminodarie/get-net-sdk-project-versions-action@v1
       id: get-version
       with:
         proj-path: .\WpfApp1\WpfApp1.csproj
+        
+    # Environmental variables
     - run: echo "VERSION=${{steps.get-version.outputs.version}}" >> $env:GITHUB_ENV
-      
-    - name: Publish app
-      run: dotnet publish .\WpfApp1\WpfApp1.csproj -o publish/full --no-self-contained --no-restore -r win-x64 -c Release -f net5.0-windows
-   
+    - run: echo "PORTABLE=artifact1" >> $env:GITHUB_ENV
+    - run: echo "INSTALLER=artifact2.txt" >> $env:GITHUB_ENV
+    
     - name: Upload Artifact App
       uses: actions/upload-artifact@v2
       with:
-        name: artifact1
+        name: ${{env.PORTABLE}}
         path: ./publish/full
 
     - name: Upload Artifact Installer
       uses: actions/upload-artifact@v2
       with:
-        name: artifact2.txt
+        name: ${{env.INSTALLER}}
         path: .\publish\full\test\Mod\base\test.txt
         
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
-        name: Wolven Manager v${{env.VERSION}}
-        tag: "${{env.VERSION}}"
         token: ${{ secrets.GITHUB_TOKEN }}
-        draft: true      
-        artifacts: "artifact1,artifact2.txt"
+        draft: true
+        tag: "${{env.VERSION}}"
+        name: Wolven Manager v${{env.VERSION}}
+        artifacts: "${{env.INSTALLER}}"
         
   
   
