@@ -51,7 +51,7 @@ jobs:
         draft: true
         tag: "${{env.VERSION}}"
         name: Wolven Manager v${{env.VERSION}}
-        artifacts: "${{env.INSTALLER}}"
+        artifacts: "${{env.INSTALLER}}.zip"
         
   
   
