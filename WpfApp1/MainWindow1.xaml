@@ -1,0 +1,59 @@
+﻿<Window x:Class="WpfApp1.MainWindow1"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow1" >
+
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
+
+    <Grid Background="LightBlue">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition  Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Label Content="EInterpolationType: "></Label>
+            <ComboBox Width="200" 
+                ItemsSource="{Binding Path=InterpolationTypes}"    
+                      SelectedItem="{Binding Path=InterpolationType}"/>
+            <Separator Width="20"/>
+            <Button Content="Render" Click="ButtonBase_OnClick"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Margin="10" >
+            <TextBlock Text="{Binding Text}"/>
+            <Border Height="400" Width="600" BorderBrush="Black" BorderThickness="1" Background="LightBlue" 
+                    x:Name="Border"
+                    PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
+                    >
+                <Path Stroke="Black" StrokeThickness="1">
+                    <Path.Data>
+                        <GeometryGroup x:Name="GeometryGroup">
+                            <PathGeometry>
+                                <PathGeometry.Figures>
+                                    <PathFigureCollection>
+                                        <PathFigure StartPoint="0,0" x:Name="PathFigure">
+                                            <PathFigure.Segments>
+                                                <PathSegmentCollection x:Name="PathSegmentCollection"/>
+                                            </PathFigure.Segments>
+                                        </PathFigure>
+                                    </PathFigureCollection>
+                                </PathGeometry.Figures>
+                            </PathGeometry>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+
+            </Border>
+        </StackPanel>
+
+        <!--<WpfPlot Grid.Row="1" Name="WpfPlot1"/>-->
+    </Grid>
+</Window>

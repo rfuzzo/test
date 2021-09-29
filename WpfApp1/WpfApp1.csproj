@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
 	<Version>1.5.0.0</Version>
 	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	  <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,12 @@
     <Content Include="test\Mod\base\test.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HandyControls" Version="3.3.7" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="4.8.0" />
+    <PackageReference Include="ScottPlot.WPF" Version="4.1.20" />
   </ItemGroup>
 
   <ItemGroup>
