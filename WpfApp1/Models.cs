@@ -11,11 +11,12 @@ namespace WpfApp1
 
         public Point? RenderPoint { get; set; }
 
-        public GeneralizedPoint(double t, double v)
+        public GeneralizedPoint(double t, double v, bool isCtrlPoint = false)
         {
             RenderPoint = null;
             T = t;
             V = v;
+            IsControlPoint = isCtrlPoint;
         }
 
         public bool Verify()

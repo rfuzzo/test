@@ -27,9 +27,6 @@ namespace WpfApp1
             InterpolationTypes = Enum.GetNames<EInterpolationType>().ToList();
             RenderedPoints = new PointCollection();
             InterpolationType = EInterpolationType.EIT_Linear.ToString();
-
-            //LoadCurve();
-            //RenderCurve();
         }
 
         #region properties
@@ -129,19 +126,27 @@ namespace WpfApp1
             InterpolationType = GetInterpolationTypeEnum().ToString();
 
             // set control points
+            RecalculateControlPoints();
+
+            IsLoaded = true;
+        }
+
+        private void RecalculateControlPoints()
+        {
             switch (GetInterpolationTypeEnum())
             {
                 case EInterpolationType.EIT_Linear:
-                    foreach (var p in _curve) p.IsControlPoint = false;
+                    foreach (var p in Curve)
+                    {
+                        p.IsControlPoint = false;
+                    }
+
                     break;
                 case EInterpolationType.EIT_BezierQuadratic:
                     // if even amount of points: not a quadratic curve
-                    if (_curve.Count % 2 == 0) throw new NotImplementedException();
-
-                    for (var i = 0; i < _curve.Count; i++)
+                    for (var i = 0; i < Curve.Count; i++)
                     {
-                        var p = _curve[i];
-                        p.IsControlPoint = i % 2 != 0;
+                        Curve[i].IsControlPoint = i % 2 != 0;
                     }
 
                     break;
@@ -151,8 +156,6 @@ namespace WpfApp1
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            IsLoaded = true;
         }
 
         /// <summary>
@@ -198,6 +201,8 @@ namespace WpfApp1
             // verify curve integrity
             if (!VerifyCurve()) throw new ArgumentNullException();
 
+            RecalculateControlPoints();
+
             List<Point> points;
 
             // render bezier segments
@@ -220,6 +225,8 @@ namespace WpfApp1
 
             StartPoint = points.First();
             RenderedPoints = new PointCollection(points.Skip(1));
+
+
         }
 
         /// <summary>
@@ -228,21 +235,75 @@ namespace WpfApp1
         /// <param name="pos"></param>
         public void Add(Point pos)
         {
+            // Add single point
+            var (t, v) = ScaleDown(pos.X, pos.Y);
+            var point = new GeneralizedPoint(t, v);
+
+            // insert
+            var idx = Curve.Count;
+            for (int i = 0; i < Curve.Count; i++)
+            {
+                var p = Curve[i];
+                var thisT = p.T;
+                if (t < thisT)
+                {
+                    idx = i;
+                    break;
+                }
+            }
+
+            Curve.Insert(idx, point);
+
             switch (GetInterpolationTypeEnum())
             {
                 case EInterpolationType.EIT_Constant:
                 case EInterpolationType.EIT_Linear:
-                    // Add single point
-
                     break;
                 case EInterpolationType.EIT_BezierQuadratic:
-                    break;
+                    {
+                        var previousPoint = Curve[idx - 1];
+                        var nextPoint = Curve[idx + 1];
+                        // add one control point before
+                        if (!previousPoint.IsControlPoint && nextPoint.IsControlPoint)
+                        {
+                            // dumb control point
+                            var ct = Math.Max(0, (t + previousPoint.T) / 2);
+                            var cv = Math.Max(0, (v + previousPoint.V) / 2);
+
+                            var ctrlPoint = new GeneralizedPoint(ct, cv, true);
+                            Curve.Insert(idx, ctrlPoint);
+                        }
+                        else if (previousPoint.IsControlPoint && !nextPoint.IsControlPoint)
+                        {
+                            // dumb control point
+                            var ct = Math.Max(0, (nextPoint.T + t) / 2);
+                            var cv = Math.Max(0, (nextPoint.V + v) / 2);
+
+                            var ctrlPoint = new GeneralizedPoint(ct, cv, true);
+                            Curve.Insert(idx + 1, ctrlPoint);
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                        }
+                        break;
+                    }
                 case EInterpolationType.EIT_BezierCubic:
                     break;
                 case EInterpolationType.EIT_Hermite:
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            Reload();
+
+        }
+
+        public (double t, double v) ScaleDown(double x, double y)
+        {
+            var t = x / Width * GetMaxT();
+            var v = 1 - (y / Height * GetMaxV());
+            return (t, v);
         }
 
         /// <summary>

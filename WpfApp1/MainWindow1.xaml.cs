@@ -16,20 +16,6 @@ namespace WpfApp1
         public MainWindow1()
         {
             InitializeComponent();
-
-            //var times = new double[] { 0, 0.5, 1 };
-            //var values = new double[] { 1, 0, 1 };
-
-            //var plt = WpfPlot1.Plot;
-            //plt.Style(ScottPlot.Style.Blue2);
-            //plt.AddScatter(times, values, label: "X");
-            //plt.XAxis.Label("Time (hours)");
-            //plt.YAxis.Label("Value");
-            //plt.XAxis2.Label($"REDName");
-
-            //plt.Legend();
-
-            //WpfPlot1.Render();
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -67,7 +53,7 @@ namespace WpfApp1
                 var p = new Ellipse
                 {
                     Stroke = Brushes.Black,
-                    Fill = Brushes.Yellow,
+                    Fill = generalizedPoint.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow,
                     Width = 8,
                     Height = 8,
                     Tag = generalizedPoint
@@ -107,15 +93,14 @@ namespace WpfApp1
                     var model = (GeneralizedPoint)ell.Tag;
 
                     // find point on curve
-                    var f = vm.Curve.FirstOrDefault(_ => _ == model);
-                    if (f != null)
+                    var generalizedPoint = vm.Curve.FirstOrDefault(_ => _ == model);
+                    if (generalizedPoint != null)
                     {
                         // scale down
-                        var nx = x / CanvasPoints.ActualWidth * vm.GetMaxT();
-                        var ny = y / CanvasPoints.ActualHeight * vm.GetMaxV();
+                        var (t, v) = vm.ScaleDown(x, y);
+                        generalizedPoint.T = t;
+                        generalizedPoint.V = v;
 
-                        f.T = nx;
-                        f.V = 1 - ny;
                         vm.Reload();
                     }
                 }
@@ -150,7 +135,10 @@ namespace WpfApp1
 
             if (e.ClickCount == 2)
                 // Add new point
+            {
                 vm.Add(pos);
+                this.RenderControlPoints();
+            }
         }
 
         // on canvas size changed

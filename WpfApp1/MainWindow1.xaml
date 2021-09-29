@@ -96,12 +96,28 @@
                 </Path>
 
             </Border>
-            <Canvas Grid.Row="1" Background="Transparent" 
+            <Canvas Grid.Row="1" 
                     x:Name="CanvasPoints"
                     PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
                     Margin="10"
                     SizeChanged="CanvasPoints_OnSizeChanged"
-            />
+            >
+                <Canvas.Background>
+                    <DrawingBrush TileMode="Tile" Viewport="0,0,40,40" 
+                                  ViewportUnits="Absolute">
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing>
+                                <GeometryDrawing.Geometry>
+                                    <RectangleGeometry Rect="0,0,50,50"/>
+                                </GeometryDrawing.Geometry>
+                                <GeometryDrawing.Pen>
+                                    <Pen Brush="LightGray" Thickness="1"/>
+                                </GeometryDrawing.Pen>
+                            </GeometryDrawing>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Canvas.Background>
+            </Canvas>
         </Grid>
 
         <!--<WpfPlot Grid.Row="1" Name="WpfPlot1"/>-->
