@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using WpfApp1.Annotations;
 
 namespace WpfApp1
 {
@@ -48,231 +43,6 @@ namespace WpfApp1
         public PointCollection RenderedPoints { get; }
     }
 
-    public class MainViewModel : INotifyPropertyChanged
-    {
-        private double WIDTH = 600;
-        private double HEIGHT = 400;
-
-        public MainViewModel()
-        {
-            InterpolationTypes = Enum.GetNames<EInterpolationType>().ToList();
-            RenderedPoints = new();
-            InterpolationType = EInterpolationType.EIT_Linear.ToString();
-
-            //LoadCurve();
-            //RenderCurve();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public ObservableCollection<GeneralizedPoint> Curve
-        {
-            get => _curve;
-            set
-            {
-                //if (Equals(value, _curve)) return;
-                _curve = value;
-                OnPropertyChanged();
-
-                RenderCurve();
-            }
-        }
-
-        public PointCollection RenderedPoints
-        {
-            get => _renderedPoints;
-            set
-            {
-                //if (Equals(value, _renderedPoints)) return;
-                _renderedPoints = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _text;
-        public string Text
-        {
-            get => _text;
-            set
-            {
-                if (value == _text) return;
-                _text = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private Point _startPoint;
-        public Point StartPoint
-        {
-            get => _startPoint;
-            set
-            {
-                //if (value.Equals(_startPoint)) return;
-                _startPoint = value;
-                OnPropertyChanged();
-            }
-        }
-
-
-
-        private bool _isLinear;
-        public bool IsLinear
-        {
-            get => _isLinear;
-            set
-            {
-                if (value == _isLinear) return;
-                _isLinear = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public List<string> InterpolationTypes { get; } = new();
-
-        private string _interpolationType;
-        private ObservableCollection<GeneralizedPoint> _curve;
-        private PointCollection _renderedPoints;
-
-
-        public string InterpolationType
-        {
-            get => _interpolationType;
-            set
-            {
-                if (value == _interpolationType) return;
-                _interpolationType = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public EInterpolationType GetInterpolationTypeEnum() => Enum.Parse<EInterpolationType>(InterpolationType);
-
-        public void LoadCurve(double h, double w)
-        {
-            HEIGHT = h;
-            WIDTH = w;
-
-            // load curve
-            Curve = new ObservableCollection<GeneralizedPoint>()
-            {
-                new(0, 1),
-                new(2.5, 1),
-                new(10, 1),
-                new(17.1, 0.99),
-                new(25, 0.25)
-            };
-            //InterpolationType = EInterpolationType.EIT_Linear.ToString();
-            InterpolationType = GetInterpolationTypeEnum().ToString();
-
-            // set control points
-            switch (GetInterpolationTypeEnum())
-            {
-                case EInterpolationType.EIT_Linear:
-                    foreach (var p in _curve)
-                    {
-                        p.IsControlPoint = false;
-                    }
-                    break;
-                case EInterpolationType.EIT_BezierQuadratic:
-                    // if even amount of points: not a quadratic curve
-                    if (_curve.Count % 2 == 0)
-                    {
-                        throw new NotImplementedException();
-                    }
-
-                    for (var i = 0; i < _curve.Count; i++)
-                    {
-                        var p = _curve[i];
-                        p.IsControlPoint = i % 2 != 0;
-                    }
-
-                    break;
-                case EInterpolationType.EIT_Constant:
-                case EInterpolationType.EIT_BezierCubic:
-                case EInterpolationType.EIT_Hermite:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private bool VerifyCurve() => _curve.All(x => x.Verify());
-        public double GetMaxT() => _curve.Select(_ => _.T).Max();
-        public double GetMaxV() => _curve.Select(_ => _.V).Max();
-
-        private void RenderCurve()
-        {
-            // scale points to canvas
-            var maxT = GetMaxT();
-            var maxV = GetMaxV();
-
-            foreach (var p in _curve)
-            {
-                var normalizedT = p.T / maxT;
-                var normalizedV = 1 - (p.V / maxV);
-
-                var scaledT = Math.Round(normalizedT * WIDTH);
-                var scaledV = Math.Round(normalizedV * HEIGHT);
-
-                p.RenderPoint = new Point(scaledT, scaledV);
-            }
-
-            // verify curve integrity
-            if (!VerifyCurve())
-            {
-                throw new ArgumentNullException();
-            }
-
-            List<Point> points;
-
-            // render bezier segments
-            switch (GetInterpolationTypeEnum())
-            {
-                case EInterpolationType.EIT_Linear:
-                    // only take proper points (depending on LoadCurve)
-                    var linearCurve = _curve.Where(x => !x.IsControlPoint).Select(x => x.RenderPoint.Value);
-                    points = linearCurve.ToList();
-                    break;
-                case EInterpolationType.EIT_BezierQuadratic:
-                    points = _curve.Select(x => x.RenderPoint.Value).ToList();
-                    break;
-                case EInterpolationType.EIT_Constant:
-                case EInterpolationType.EIT_BezierCubic:
-                case EInterpolationType.EIT_Hermite:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            StartPoint = points.First();
-            RenderedPoints = new PointCollection(points.Skip(1));
-        }
-
-        //public void OnClicked(Point point) => Point1 = point;
-        //public void OnClicked2(Point point) => Point2 = point;
-        public void Add(Point pos)
-        {
-
-
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /// <summary>
     /// Interaction logic for MainWindow1.xaml
@@ -282,8 +52,6 @@ namespace WpfApp1
         public MainWindow1()
         {
             InitializeComponent();
-
-
 
             //var times = new double[] { 0, 0.5, 1 };
             //var values = new double[] { 1, 0, 1 };
@@ -298,86 +66,62 @@ namespace WpfApp1
             //plt.Legend();
 
             //WpfPlot1.Render();
-
-
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
+
             if (this.DataContext is MainViewModel vm)
             {
-                var h = this.CanvasCurve.ActualHeight;
-                var w = this.CanvasCurve.ActualWidth;
-
-                vm.LoadCurve(h, w);
-
-                //this.PathSegmentCollection.Clear();
-                //this.PathFigure.StartPoint = vm.StartPoint;
-
-                switch (vm.GetInterpolationTypeEnum())
-                {
-                    case EInterpolationType.EIT_Linear:
-                        //this.PathSegmentCollection.Add(new PolyLineSegment() { Points = vm.RenderedPoints });
-                        break;
-                    case EInterpolationType.EIT_BezierQuadratic:
-                        //this.PathSegmentCollection.Add(new PolyQuadraticBezierSegment() { Points = vm.RenderedPoints });
-                        break;
-                    case EInterpolationType.EIT_BezierCubic:
-                    case EInterpolationType.EIT_Hermite:
-                    case EInterpolationType.EIT_Constant:
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                // add points
-                foreach (UIElement p in this.CanvasPoints.Children)
-                {
-                    p.MouseDown -= POnMouseDown;
-                    p.MouseUp -= POnMouseUp;
-                    p.MouseMove -= POnMouseMove;
-                }
-
-                CanvasPoints.Children.Clear();
-                foreach (var point in vm.RenderedPoints)
-                {
-                    var gpoint = vm.Curve.FirstOrDefault(x => x.RenderPoint == point);
-                    if (gpoint == null)
-                    {
-
-                    }
-
-
-                    var p = new Ellipse
-                    {
-                        Stroke = System.Windows.Media.Brushes.Black,
-                        Fill = System.Windows.Media.Brushes.Yellow,
-                        Width = 8,
-                        Height = 8,
-                        Tag = gpoint
-                    };
-                    Canvas.SetTop(p, point.Y - 3);
-                    Canvas.SetLeft(p, point.X - 3);
-
-                    p.MouseDown += POnMouseDown;
-                    p.MouseUp += POnMouseUp;
-                    p.MouseMove += POnMouseMove;
-
-                    this.CanvasPoints.Children.Add(p);
-                }
-                //var points = this.GeometryGroup.Children.Where(x => x is EllipseGeometry).ToList();
-                //foreach (var groupChild in points)
-                //{
-                //    this.GeometryGroup.Children.Remove(groupChild);
-                //}
-                //foreach (var point in curve.RenderedPoints)
-                //{
-                //    var ellipse = new EllipseGeometry(point, 3, 3);
-
-                //    this.GeometryGroup.Children.Add(ellipse);
-                //}
+                vm.LoadCurve();
             }
 
+            RenderControlPoints();
+
         }
+
+        private void RenderControlPoints()
+        {
+            if (this.DataContext is not MainViewModel vm)
+            {
+                return;
+            }
+
+            // unsubscribe from existing points
+            foreach (UIElement p in this.CanvasPoints.Children)
+            {
+                p.MouseDown -= POnMouseDown;
+                p.MouseUp -= POnMouseUp;
+                p.MouseMove -= POnMouseMove;
+            }
+
+            // clear existing points
+            CanvasPoints.Children.Clear();
+
+            // add points
+            foreach (var generalizedPoint in vm.Curve)
+            {
+                var p = new Ellipse
+                {
+                    Stroke = System.Windows.Media.Brushes.Black,
+                    Fill = System.Windows.Media.Brushes.Yellow,
+                    Width = 8,
+                    Height = 8,
+                    Tag = generalizedPoint
+                };
+                Canvas.SetLeft(p, generalizedPoint.RenderPoint.Value.X - 3);
+                Canvas.SetTop(p, generalizedPoint.RenderPoint.Value.Y - 3);
+                
+
+                // subscribe
+                p.MouseDown += POnMouseDown;
+                p.MouseUp += POnMouseUp;
+                p.MouseMove += POnMouseMove;
+
+                this.CanvasPoints.Children.Add(p);
+            }
+        }
+
 
         Point? dragStart = null;
         private void POnMouseMove(object sender, MouseEventArgs e)
@@ -386,8 +130,9 @@ namespace WpfApp1
             {
                 var element = (UIElement)sender;
                 var p2 = e.GetPosition(this.CanvasPoints);
-                var x = p2.X - dragStart.Value.X;
-                var y = p2.Y - dragStart.Value.Y;
+                var x = Math.Min(Math.Max(p2.X - dragStart.Value.X, 0), this.CanvasPoints.ActualWidth);
+                var y = Math.Min(Math.Max(p2.Y - dragStart.Value.Y, 0), this.CanvasPoints.ActualHeight);
+
                 Canvas.SetLeft(element, x - 3);
                 Canvas.SetTop(element, y - 3);
 
@@ -490,7 +235,14 @@ namespace WpfApp1
         }
 
 
-
+        private void CanvasPoints_OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.Height = e.NewSize.Height;
+                vm.Width = e.NewSize.Width;
+            }
+        }
     }
 }
 
