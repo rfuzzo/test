@@ -12,18 +12,27 @@ namespace WpfApp1
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        public double Width { get; set; }
-        public double Height { get; set; }
+        #region fields
+
+        private string _interpolationType;
+        private ObservableCollection<GeneralizedPoint> _curve;
+        private PointCollection _renderedPoints;
+        private string _text;
+        private Point _startPoint;
+
+        #endregion
 
         public MainViewModel()
         {
             InterpolationTypes = Enum.GetNames<EInterpolationType>().ToList();
-            RenderedPoints = new();
+            RenderedPoints = new PointCollection();
             InterpolationType = EInterpolationType.EIT_Linear.ToString();
 
             //LoadCurve();
             //RenderCurve();
         }
+
+        #region properties
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -32,6 +41,12 @@ namespace WpfApp1
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public bool IsLoaded { get; set; }
+
+        public double Width { get; set; }
+
+        public double Height { get; set; }
 
         public ObservableCollection<GeneralizedPoint> Curve
         {
@@ -57,7 +72,6 @@ namespace WpfApp1
             }
         }
 
-        private string _text;
         public string Text
         {
             get => _text;
@@ -69,7 +83,6 @@ namespace WpfApp1
             }
         }
 
-        private Point _startPoint;
         public Point StartPoint
         {
             get => _startPoint;
@@ -83,11 +96,6 @@ namespace WpfApp1
 
         public List<string> InterpolationTypes { get; } = new();
 
-        private string _interpolationType;
-        private ObservableCollection<GeneralizedPoint> _curve;
-        private PointCollection _renderedPoints;
-
-
         public string InterpolationType
         {
             get => _interpolationType;
@@ -99,12 +107,17 @@ namespace WpfApp1
             }
         }
 
-        public EInterpolationType GetInterpolationTypeEnum() => Enum.Parse<EInterpolationType>(InterpolationType);
+        #endregion
 
+        /// <summary>
+        ///     Load a curve into the editor
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public void LoadCurve()
         {
             // load curve
-            Curve = new ObservableCollection<GeneralizedPoint>()
+            Curve = new ObservableCollection<GeneralizedPoint>
             {
                 new(0, 1),
                 new(2.5, 1),
@@ -119,17 +132,11 @@ namespace WpfApp1
             switch (GetInterpolationTypeEnum())
             {
                 case EInterpolationType.EIT_Linear:
-                    foreach (var p in _curve)
-                    {
-                        p.IsControlPoint = false;
-                    }
+                    foreach (var p in _curve) p.IsControlPoint = false;
                     break;
                 case EInterpolationType.EIT_BezierQuadratic:
                     // if even amount of points: not a quadratic curve
-                    if (_curve.Count % 2 == 0)
-                    {
-                        throw new NotImplementedException();
-                    }
+                    if (_curve.Count % 2 == 0) throw new NotImplementedException();
 
                     for (var i = 0; i < _curve.Count; i++)
                     {
@@ -144,11 +151,32 @@ namespace WpfApp1
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            IsLoaded = true;
         }
 
-        private bool VerifyCurve() => _curve.All(x => x.Verify());
-        public double GetMaxT() => _curve.Select(_ => _.T).Max();
-        public double GetMaxV() => _curve.Select(_ => _.V).Max();
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        public EInterpolationType GetInterpolationTypeEnum()
+        {
+            return Enum.Parse<EInterpolationType>(InterpolationType);
+        }
+
+        private bool VerifyCurve()
+        {
+            return _curve.All(x => x.Verify());
+        }
+
+        public double GetMaxT()
+        {
+            return _curve.Select(_ => _.T).Max();
+        }
+
+        public double GetMaxV()
+        {
+            return _curve.Select(_ => _.V).Max();
+        }
 
         private void RenderCurve()
         {
@@ -159,19 +187,16 @@ namespace WpfApp1
             foreach (var p in _curve)
             {
                 var normalizedT = p.T / maxT;
-                var normalizedV = 1 - (p.V / maxV);
+                var normalizedV = 1 - p.V / maxV;
 
-                var scaledT = Math.Round(normalizedT * (double)Width);
-                var scaledV = Math.Round(normalizedV * (double)Height);
+                var scaledT = Math.Round(normalizedT * Width);
+                var scaledV = Math.Round(normalizedV * Height);
 
                 p.RenderPoint = new Point(scaledT, scaledV);
             }
 
             // verify curve integrity
-            if (!VerifyCurve())
-            {
-                throw new ArgumentNullException();
-            }
+            if (!VerifyCurve()) throw new ArgumentNullException();
 
             List<Point> points;
 
@@ -197,12 +222,37 @@ namespace WpfApp1
             RenderedPoints = new PointCollection(points.Skip(1));
         }
 
-        //public void OnClicked(Point point) => Point1 = point;
-        //public void OnClicked2(Point point) => Point2 = point;
+        /// <summary>
+        ///     Add a point to the curve
+        /// </summary>
+        /// <param name="pos"></param>
         public void Add(Point pos)
         {
+            switch (GetInterpolationTypeEnum())
+            {
+                case EInterpolationType.EIT_Constant:
+                case EInterpolationType.EIT_Linear:
+                    // Add single point
 
+                    break;
+                case EInterpolationType.EIT_BezierQuadratic:
+                    break;
+                case EInterpolationType.EIT_BezierCubic:
+                    break;
+                case EInterpolationType.EIT_Hermite:
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
 
+        /// <summary>
+        ///     Re-renders the curve
+        /// </summary>
+        public void Reload()
+        {
+            if (Curve is null) return;
+            OnPropertyChanged(nameof(Curve));
+            RenderCurve();
         }
     }
 }

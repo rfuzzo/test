@@ -26,7 +26,8 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal">
             <Label Content="EInterpolationType: "></Label>
             <ComboBox Width="200" 
-                ItemsSource="{Binding Path=InterpolationTypes}"    
+                      SelectionChanged="Selector_OnSelectionChanged"
+                      ItemsSource="{Binding Path=InterpolationTypes}"    
                       SelectedItem="{Binding Path=InterpolationType}"/>
             <Separator Width="20"/>
             <Button Content="Load Curve" Click="ButtonBase_OnClick"/>
@@ -40,23 +41,50 @@
 
             <TextBlock Grid.Row="0" Text="{Binding Text}"/>
             <Border Grid.Row="1" Background="WhiteSmoke" 
-                    x:Name="CanvasCurve"
+                    x:Name="CanvasQuadraticCurve"
                     BorderBrush="Black"
                     BorderThickness="1"
                     Margin="10"
-                    
-                    >
+                    Visibility="Collapsed"
+            >
                 <Path Stroke="Black" StrokeThickness="1">
                     <Path.Data>
                         <GeometryGroup>
                             <PathGeometry>
                                 <PathGeometry.Figures>
                                     <PathFigureCollection>
-                                        <PathFigure StartPoint="{Binding StartPoint, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="PathFigure">
+                                        <PathFigure StartPoint="{Binding StartPoint, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
                                             <PathFigure.Segments>
-                                                <PathSegmentCollection x:Name="PathSegmentCollection">
-                                                    <!--<PolyLineSegment Points="{Binding RenderedPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>-->
+                                                <PathSegmentCollection>
                                                     <PolyQuadraticBezierSegment Points="{Binding RenderedPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </PathSegmentCollection>
+                                            </PathFigure.Segments>
+                                        </PathFigure>
+                                    </PathFigureCollection>
+                                </PathGeometry.Figures>
+                            </PathGeometry>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+
+            </Border>
+            <Border Grid.Row="1" Background="WhiteSmoke" 
+                    x:Name="CanvasLinearCurve"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    Margin="10"
+                    Visibility="Collapsed"
+            >
+                <Path Stroke="Black" StrokeThickness="1">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <PathGeometry>
+                                <PathGeometry.Figures>
+                                    <PathFigureCollection>
+                                        <PathFigure StartPoint="{Binding StartPoint, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <PathFigure.Segments>
+                                                <PathSegmentCollection>
+                                                    <PolyLineSegment Points="{Binding RenderedPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                 </PathSegmentCollection>
                                             </PathFigure.Segments>
                                         </PathFigure>
@@ -71,7 +99,6 @@
             <Canvas Grid.Row="1" Background="Transparent" 
                     x:Name="CanvasPoints"
                     PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
-                    PreviewMouseMove="Canvas_OnPreviewMouseMove"
                     Margin="10"
                     SizeChanged="CanvasPoints_OnSizeChanged"
             />
