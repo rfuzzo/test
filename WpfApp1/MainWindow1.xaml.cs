@@ -13,9 +13,14 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow1 : Window
     {
+        
+
+
         public MainWindow1()
         {
             InitializeComponent();
+
+            
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -28,13 +33,76 @@ namespace WpfApp1
             }
 
             RenderControlPoints();
+
+
+            
+
+
+        }
+
+        private void DrawAxes()
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                double wxmax =/* vm.MaxT * */this.CanvasPoints.ActualWidth - MainViewModel.XMIN;
+                double wymax = /*vm.MaxV * */this.CanvasPoints.ActualHeight - MainViewModel.YMIN;
+                const double xstep = 40;
+                const double ystep = 40;
+                const double xtic = 5;
+                const double ytic = 5;
+
+                // Make the X axis.
+                GeometryGroup xaxis_geom = new GeometryGroup();
+                Point p0 = new Point(MainViewModel.XMIN, CanvasPoints.ActualHeight - MainViewModel.XMIN);
+                Point p1 = new Point(wxmax, CanvasPoints.ActualHeight - MainViewModel.XMIN);
+                xaxis_geom.Children.Add(new LineGeometry((p0), (p1)));
+
+                for (double x = 2 * MainViewModel.XMIN; x <= wxmax - xstep; x += xstep)
+                {
+                    Point tic0 = new Point(x, CanvasPoints.ActualHeight - MainViewModel.XMIN - ytic);
+                    Point tic1 = new Point(x, CanvasPoints.ActualHeight - MainViewModel.XMIN + ytic);
+                    xaxis_geom.Children.Add(new LineGeometry((tic0), (tic1)));
+                }
+
+                Path xaxis_path = new Path();
+                xaxis_path.StrokeThickness = 1;
+                xaxis_path.Stroke = Brushes.Black;
+                xaxis_path.Data = xaxis_geom;
+
+                this.CanvasPoints.Children.Add(xaxis_path);
+
+                // Make the Y axis.
+                GeometryGroup yaxis_geom = new GeometryGroup();
+                p0 = new Point(MainViewModel.XMIN, MainViewModel.YMIN);
+                p1 = new Point(MainViewModel.XMIN, wymax);
+                xaxis_geom.Children.Add(new LineGeometry((p0), (p1)));
+
+                for (double y = MainViewModel.YMIN; y <= wymax - ystep; y += ystep)
+                {
+                    Point tic0 = new Point(MainViewModel.XMIN - xtic, y);
+                    Point tic1 = new Point(MainViewModel.XMIN + xtic, y);
+                    xaxis_geom.Children.Add(new LineGeometry((tic0), (tic1)));
+                }
+
+                Path yaxis_path = new Path();
+                yaxis_path.StrokeThickness = 1;
+                yaxis_path.Stroke = Brushes.Black;
+                yaxis_path.Data = yaxis_geom;
+
+                this.CanvasPoints.Children.Add(yaxis_path);
+
+            }
         }
 
         private void RenderControlPoints()
         {
+            
+
             if (DataContext is not MainViewModel vm) return;
 
             if (vm.Curve is null) return;
+
+            
 
             // unsubscribe from existing points
             foreach (UIElement p in CanvasPoints.Children)
@@ -46,6 +114,7 @@ namespace WpfApp1
 
             // clear existing points
             CanvasPoints.Children.Clear();
+            DrawAxes();
 
             // add points
             foreach (var generalizedPoint in vm.Curve)
@@ -82,8 +151,8 @@ namespace WpfApp1
             {
                 var element = (UIElement)sender;
                 var p2 = e.GetPosition(CanvasPoints);
-                var x = Math.Min(Math.Max(p2.X - dragStart.Value.X, 0), CanvasPoints.ActualWidth);
-                var y = Math.Min(Math.Max(p2.Y - dragStart.Value.Y, 0), CanvasPoints.ActualHeight);
+                var x = Math.Min(Math.Max(p2.X - dragStart.Value.X, 40), CanvasPoints.ActualWidth - MainViewModel.XMIN);
+                var y = Math.Min(Math.Max(p2.Y - dragStart.Value.Y, 40), CanvasPoints.ActualHeight - MainViewModel.YMIN);
 
                 Canvas.SetLeft(element, x - 3);
                 Canvas.SetTop(element, y - 3);
@@ -97,7 +166,7 @@ namespace WpfApp1
                     if (generalizedPoint != null)
                     {
                         // scale down
-                        var (t, v) = vm.ScaleDown(x, y);
+                        var (t, v) = vm.ScaleDown(x - MainViewModel.XMIN, y - MainViewModel.YMIN);
                         generalizedPoint.T = t;
                         generalizedPoint.V = v;
 
@@ -146,8 +215,8 @@ namespace WpfApp1
         {
             if (DataContext is MainViewModel vm)
             {
-                vm.Height = e.NewSize.Height;
-                vm.Width = e.NewSize.Width;
+                vm.Height = e.NewSize.Height - MainViewModel.YMIN;
+                vm.Width = e.NewSize.Width - (2 * MainViewModel.XMIN);
 
                 if (vm.Curve is not null)
                 {
@@ -189,6 +258,18 @@ namespace WpfApp1
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        private void CanvasPoints_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm) return;
+            var pos = e.GetPosition(CanvasPoints);
+
+            var x = Math.Round(Math.Min(Math.Max(pos.X - 40, 0), this.CanvasPoints.ActualWidth - 80));
+            var y = Math.Round(Math.Min(Math.Max(this.CanvasPoints.ActualHeight - 40 - pos.Y, 0), this.CanvasPoints.ActualHeight - 80));
+
+            vm.Cursor = new Point(x, y);
+
         }
     }
 }

@@ -12,6 +12,26 @@ namespace WpfApp1
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        public const double XMIN = 40;
+        public const double YMIN = 40;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         #region fields
 
         private string _interpolationType;
@@ -19,6 +39,7 @@ namespace WpfApp1
         private PointCollection _renderedPoints;
         private string _text;
         private Point _startPoint;
+        private Point _cursor;
 
         #endregion
 
@@ -27,6 +48,20 @@ namespace WpfApp1
             InterpolationTypes = Enum.GetNames<EInterpolationType>().ToList();
             RenderedPoints = new PointCollection();
             InterpolationType = EInterpolationType.EIT_Linear.ToString();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         #region properties
@@ -45,6 +80,18 @@ namespace WpfApp1
 
         public double Height { get; set; }
 
+        public Point Cursor
+        {
+            get => _cursor;
+            set
+            {
+                if (value.Equals(_cursor)) return;
+                _cursor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CursorPos));
+            }
+        }
+
         public ObservableCollection<GeneralizedPoint> Curve
         {
             get => _curve;
@@ -54,6 +101,8 @@ namespace WpfApp1
                 _curve = value;
                 OnPropertyChanged();
 
+                OnPropertyChanged(nameof(MaxT));
+                OnPropertyChanged(nameof(MaxV));
                 RenderCurve();
             }
         }
@@ -171,29 +220,38 @@ namespace WpfApp1
             return _curve.All(x => x.Verify());
         }
 
-        public double GetMaxT()
+        public double MaxT
         {
-            return _curve.Select(_ => _.T).Max();
+            get { return _curve.Select(_ => _.T).Max(); }
         }
 
-        public double GetMaxV()
+        public double MaxV
         {
-            return _curve.Select(_ => _.V).Max();
+            get { return _curve.Select(_ => _.V).Max(); }
+        }
+
+        public string CursorPos
+        {
+            get
+            {
+                var (nx, ny) = ScaleDown(Cursor.X, Cursor.Y);
+                return $"{Cursor.X} - {Cursor.Y} / {Math.Round(nx, 2)} - {Math.Round(ny, 2)}";
+            }
         }
 
         private void RenderCurve()
         {
             // scale points to canvas
-            var maxT = GetMaxT();
-            var maxV = GetMaxV();
+            var maxT = MaxT;
+            var maxV = MaxV;
 
             foreach (var p in _curve)
             {
                 var normalizedT = p.T / maxT;
                 var normalizedV = 1 - p.V / maxV;
 
-                var scaledT = Math.Round(normalizedT * Width);
-                var scaledV = Math.Round(normalizedV * Height);
+                var scaledT = Math.Round(normalizedT * Width) + XMIN;
+                var scaledV = Math.Round(normalizedV * Height) + YMIN;
 
                 p.RenderPoint = new Point(scaledT, scaledV);
             }
@@ -236,7 +294,7 @@ namespace WpfApp1
         public void Add(Point pos)
         {
             // Add single point
-            var (t, v) = ScaleDown(pos.X, pos.Y);
+            var (t, v) = ScaleDown(pos.X - XMIN, pos.Y - YMIN);
             var point = new GeneralizedPoint(t, v);
 
             // insert
@@ -263,10 +321,9 @@ namespace WpfApp1
                     {
                         var previousPoint = Curve[idx - 1];
                         var nextPoint = Curve[idx + 1];
-                        // add one control point before
                         if (!previousPoint.IsControlPoint && nextPoint.IsControlPoint)
                         {
-                            // dumb control point
+                            // add one control point before
                             var ct = Math.Max(0, (t + previousPoint.T) / 2);
                             var cv = Math.Max(0, (v + previousPoint.V) / 2);
 
@@ -275,7 +332,7 @@ namespace WpfApp1
                         }
                         else if (previousPoint.IsControlPoint && !nextPoint.IsControlPoint)
                         {
-                            // dumb control point
+                            // add one control point after
                             var ct = Math.Max(0, (nextPoint.T + t) / 2);
                             var cv = Math.Max(0, (nextPoint.V + v) / 2);
 
@@ -301,8 +358,8 @@ namespace WpfApp1
 
         public (double t, double v) ScaleDown(double x, double y)
         {
-            var t = x / Width * GetMaxT();
-            var v = 1 - (y / Height * GetMaxV());
+            var t = x / Width * MaxT;
+            var v = 1 - (y / Height * MaxV);
             return (t, v);
         }
 

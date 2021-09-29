@@ -31,6 +31,7 @@
                       SelectedItem="{Binding Path=InterpolationType}"/>
             <Separator Width="20"/>
             <Button Content="Load Curve" Click="ButtonBase_OnClick"/>
+            <TextBlock Width="200" Text="{Binding CursorPos}" />
         </StackPanel>
 
         <Grid Grid.Row="1"  >
@@ -44,7 +45,7 @@
                     x:Name="CanvasQuadraticCurve"
                     BorderBrush="Black"
                     BorderThickness="1"
-                    Margin="10"
+                    Margin="50"
                     Visibility="Collapsed"
             >
                 <Path Stroke="Black" StrokeThickness="1">
@@ -72,7 +73,7 @@
                     x:Name="CanvasLinearCurve"
                     BorderBrush="Black"
                     BorderThickness="1"
-                    Margin="10"
+                    Margin="50"
                     Visibility="Collapsed"
             >
                 <Path Stroke="Black" StrokeThickness="1">
@@ -99,8 +100,9 @@
             <Canvas Grid.Row="1" 
                     x:Name="CanvasPoints"
                     PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
-                    Margin="10"
+                    Margin="50"
                     SizeChanged="CanvasPoints_OnSizeChanged"
+                    MouseMove="CanvasPoints_OnMouseMove"
             >
                 <Canvas.Background>
                     <DrawingBrush TileMode="Tile" Viewport="0,0,40,40" 
