@@ -31,7 +31,12 @@
                       SelectedItem="{Binding Path=InterpolationType}"/>
             <Separator Width="20"/>
             <Button Content="Load Curve" Click="ButtonBase_OnClick"/>
-            <TextBlock Width="200" Text="{Binding CursorPos}" />
+            <Label Width="150" Content="{Binding CursorPos}" />
+            <Label Width="Auto" Content="MinX" />
+            <TextBox Width="50" Text="{Binding MinX}"/>
+            <Label Width="Auto" Content="MaxX" />
+            <TextBox Width="50" Text="{Binding MaxX}"/>
+            <TextBox/>
         </StackPanel>
 
         <Grid Grid.Row="1"  >
@@ -97,13 +102,25 @@
                 </Path>
 
             </Border>
+            
+
             <Canvas Grid.Row="1" 
-                    x:Name="CanvasPoints"
-                    PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
+                    x:Name="CanvasGrid"
                     Margin="50"
-                    SizeChanged="CanvasPoints_OnSizeChanged"
-                    MouseMove="CanvasPoints_OnMouseMove"
+                    
             >
+                <!--DataContext="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow1}}}"-->
+
+                <!--<Canvas.RenderTransform>
+                    <TransformGroup>
+                        --><!--<ScaleTransform ScaleX="{Binding Zoom}"
+                                        ScaleY="{Binding Zoom}" />--><!--
+                        <ScaleTransform ScaleY="-1" />
+                        <TranslateTransform Y="{Binding Height}"/>
+                        
+                        
+                    </TransformGroup>
+                </Canvas.RenderTransform>-->
                 <Canvas.Background>
                     <DrawingBrush TileMode="Tile" Viewport="0,0,40,40" 
                                   ViewportUnits="Absolute">
@@ -119,6 +136,16 @@
                         </DrawingBrush.Drawing>
                     </DrawingBrush>
                 </Canvas.Background>
+            </Canvas>
+
+            <Canvas Grid.Row="1" 
+                    x:Name="CanvasPoints"
+                    PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
+                    Margin="50"
+                    SizeChanged="CanvasPoints_OnSizeChanged"
+                    MouseMove="CanvasPoints_OnMouseMove"
+                    Background="Transparent"
+            >
             </Canvas>
         </Grid>
 

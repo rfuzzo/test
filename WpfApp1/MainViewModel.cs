@@ -13,23 +13,7 @@ namespace WpfApp1
     public class MainViewModel : INotifyPropertyChanged
     {
         public const double XMIN = 40;
-        public const double YMIN = 40;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        public const double YMIN = XMIN;
 
 
         #region fields
@@ -40,6 +24,8 @@ namespace WpfApp1
         private string _text;
         private Point _startPoint;
         private Point _cursor;
+        private string _minX;
+        private string _maxX;
 
         #endregion
 
@@ -48,19 +34,6 @@ namespace WpfApp1
             InterpolationTypes = Enum.GetNames<EInterpolationType>().ToList();
             RenderedPoints = new PointCollection();
             InterpolationType = EInterpolationType.EIT_Linear.ToString();
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         }
 
@@ -101,8 +74,6 @@ namespace WpfApp1
                 _curve = value;
                 OnPropertyChanged();
 
-                OnPropertyChanged(nameof(MaxT));
-                OnPropertyChanged(nameof(MaxV));
                 RenderCurve();
             }
         }
@@ -153,6 +124,74 @@ namespace WpfApp1
             }
         }
 
+        public double MaxT { get; set; }
+        public double MinT { get; set; }
+
+        public double MaxV { get; set; }
+        public double MinV { get; set; }
+
+        public string CursorPos
+        {
+            get
+            {
+                var (nx, ny) = ScaleDown(Cursor.X, Cursor.Y);
+                //return $"{Cursor.X} - {Cursor.Y} / {Math.Round(nx, 2)} - {Math.Round(MaxV - ny, 2)}";
+                return $"T : {Math.Round(nx, 2)} - V : {Math.Round(MaxV - ny, 2)}";
+            }
+        }
+
+        public string MinX
+        {
+            get => _minX;
+            set
+            {
+                if (value == _minX) return;
+                _minX = value;
+                OnPropertyChanged();
+
+                MinT = Math.Min(double.Parse(_minX), MinT);
+                Reload();
+            }
+        }
+
+        public string MaxX
+        {
+            get => _maxX;
+            set
+            {
+                if (value == _maxX) return;
+                _maxX = value;
+                OnPropertyChanged();
+
+                MaxT = Math.Max(double.Parse(_maxX), MaxT);
+                Reload();
+            }
+        }
+
+        public double TransX
+        {
+            get
+            {
+                //if (CanvasGrid != null)
+                {
+                    return (/*Width  zoom - */Width) / 2;
+                }
+                //return 0;
+            }
+        }
+
+        public double TransY
+        {
+            get
+            {
+                // if (CanvasGrid != null)
+                {
+                    return (/* CanvasGrid.Height  zoom -*/ Height) / 2;
+                }
+                return 0;
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -163,14 +202,24 @@ namespace WpfApp1
         public void LoadCurve()
         {
             // load curve
-            Curve = new ObservableCollection<GeneralizedPoint>
+            var c = new List<GeneralizedPoint>
             {
-                new(0, 1),
+                new(0, 1.5),
                 new(2.5, 1),
                 new(10, 1),
                 new(17.1, 0.99),
                 new(25, 0.25)
             };
+
+            MaxT = c.Max(_ => _.T);
+            MinT = c.Min(_ => _.T);
+            MinX = MinT.ToString();
+            MaxX = MaxT.ToString();
+
+            MaxV = c.Max(_ => _.V);
+
+            Curve = new ObservableCollection<GeneralizedPoint>(c);
+
             //InterpolationType = EInterpolationType.EIT_Linear.ToString();
             InterpolationType = GetInterpolationTypeEnum().ToString();
 
@@ -218,25 +267,6 @@ namespace WpfApp1
         private bool VerifyCurve()
         {
             return _curve.All(x => x.Verify());
-        }
-
-        public double MaxT
-        {
-            get { return _curve.Select(_ => _.T).Max(); }
-        }
-
-        public double MaxV
-        {
-            get { return _curve.Select(_ => _.V).Max(); }
-        }
-
-        public string CursorPos
-        {
-            get
-            {
-                var (nx, ny) = ScaleDown(Cursor.X, Cursor.Y);
-                return $"{Cursor.X} - {Cursor.Y} / {Math.Round(nx, 2)} - {Math.Round(ny, 2)}";
-            }
         }
 
         private void RenderCurve()
@@ -359,7 +389,7 @@ namespace WpfApp1
         public (double t, double v) ScaleDown(double x, double y)
         {
             var t = x / Width * MaxT;
-            var v = 1 - (y / Height * MaxV);
+            var v = MaxV - (y / Height * MaxV);
             return (t, v);
         }
 

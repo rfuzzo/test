@@ -13,15 +13,18 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow1 : Window
     {
-        
+
 
 
         public MainWindow1()
         {
             InitializeComponent();
 
-            
+
         }
+
+       
+       
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
@@ -35,7 +38,7 @@ namespace WpfApp1
             RenderControlPoints();
 
 
-            
+
 
 
         }
@@ -44,65 +47,131 @@ namespace WpfApp1
         {
             if (DataContext is MainViewModel vm)
             {
-                double wxmax =/* vm.MaxT * */this.CanvasPoints.ActualWidth - MainViewModel.XMIN;
-                double wymax = /*vm.MaxV * */this.CanvasPoints.ActualHeight - MainViewModel.YMIN;
+                var wxmax = /* vm.MaxT * */CanvasPoints.ActualWidth - MainViewModel.XMIN;
+                var wymax = /*vm.MaxV * */CanvasPoints.ActualHeight - MainViewModel.YMIN;
                 const double xstep = 40;
                 const double ystep = 40;
                 const double xtic = 5;
                 const double ytic = 5;
 
                 // Make the X axis.
-                GeometryGroup xaxis_geom = new GeometryGroup();
-                Point p0 = new Point(MainViewModel.XMIN, CanvasPoints.ActualHeight - MainViewModel.XMIN);
-                Point p1 = new Point(wxmax, CanvasPoints.ActualHeight - MainViewModel.XMIN);
-                xaxis_geom.Children.Add(new LineGeometry((p0), (p1)));
+                var xaxisGeom = new GeometryGroup();
+                var p0 = new Point(MainViewModel.XMIN, CanvasPoints.ActualHeight - MainViewModel.XMIN);
+                var p1 = new Point(wxmax, CanvasPoints.ActualHeight - MainViewModel.XMIN);
+                xaxisGeom.Children.Add(new LineGeometry(p0, p1));
 
-                for (double x = 2 * MainViewModel.XMIN; x <= wxmax - xstep; x += xstep)
+                var cnt = 1;
+                for (var x = 2 * MainViewModel.XMIN; x <= wxmax; x += xstep)
                 {
-                    Point tic0 = new Point(x, CanvasPoints.ActualHeight - MainViewModel.XMIN - ytic);
-                    Point tic1 = new Point(x, CanvasPoints.ActualHeight - MainViewModel.XMIN + ytic);
-                    xaxis_geom.Children.Add(new LineGeometry((tic0), (tic1)));
+                    
+                    var tic0 = new Point(x, CanvasPoints.ActualHeight - MainViewModel.XMIN - ytic);
+                    var tic1 = new Point(x, CanvasPoints.ActualHeight - MainViewModel.XMIN + ytic);
+                    xaxisGeom.Children.Add(new LineGeometry(tic0, tic1));
+
+                    // Label the tic mark's X coordinate.
+                    var tstep = xstep / vm.Width * vm.MaxT;
+                    var t = Math.Round(cnt  * tstep, 2);
+                    DrawText(CanvasPoints, t.ToString(),
+                        new Point(tic0.X, tic0.Y + 5), 12,
+                        HorizontalAlignment.Center,
+                        VerticalAlignment.Top);
+                    cnt++;
                 }
 
-                Path xaxis_path = new Path();
-                xaxis_path.StrokeThickness = 1;
-                xaxis_path.Stroke = Brushes.Black;
-                xaxis_path.Data = xaxis_geom;
+                var xaxis_path = new Path
+                {
+                    StrokeThickness = 1,
+                    Stroke = Brushes.Black,
+                    Data = xaxisGeom
+                };
 
-                this.CanvasPoints.Children.Add(xaxis_path);
+                CanvasPoints.Children.Add(xaxis_path);
 
                 // Make the Y axis.
-                GeometryGroup yaxis_geom = new GeometryGroup();
+                var yaxisGeom = new GeometryGroup();
                 p0 = new Point(MainViewModel.XMIN, MainViewModel.YMIN);
                 p1 = new Point(MainViewModel.XMIN, wymax);
-                xaxis_geom.Children.Add(new LineGeometry((p0), (p1)));
+                xaxisGeom.Children.Add(new LineGeometry(p0, p1));
 
-                for (double y = MainViewModel.YMIN; y <= wymax - ystep; y += ystep)
+                // total ticks
+                cnt = 0;
+                for (var y = wymax; y >= MainViewModel.YMIN; y -= ystep)
                 {
-                    Point tic0 = new Point(MainViewModel.XMIN - xtic, y);
-                    Point tic1 = new Point(MainViewModel.XMIN + xtic, y);
-                    xaxis_geom.Children.Add(new LineGeometry((tic0), (tic1)));
+                    var tic0 = new Point(MainViewModel.XMIN - xtic, y);
+                    var tic1 = new Point(MainViewModel.XMIN + xtic, y);
+                    xaxisGeom.Children.Add(new LineGeometry(tic0, tic1));
+
+                    // Label the tic mark's Y coordinate.
+                    var vstep = ystep / vm.Height * vm.MaxV;
+                    var v = Math.Round(cnt * vstep, 2);
+                    DrawText(CanvasPoints, v.ToString(),
+                        new Point(tic0.X - 15, tic0.Y), 12,
+                        HorizontalAlignment.Center,
+                        VerticalAlignment.Center);
+                    cnt++;
                 }
 
-                Path yaxis_path = new Path();
-                yaxis_path.StrokeThickness = 1;
-                yaxis_path.Stroke = Brushes.Black;
-                yaxis_path.Data = yaxis_geom;
+                var yaxis_path = new Path
+                {
+                    StrokeThickness = 1,
+                    Stroke = Brushes.Black,
+                    Data = yaxisGeom
+                };
 
-                this.CanvasPoints.Children.Add(yaxis_path);
-
+                CanvasPoints.Children.Add(yaxis_path);
             }
+        }
+
+        // Position a label at the indicated point.
+        private void DrawText(Canvas can, string text, Point location, double font_size, HorizontalAlignment halign, VerticalAlignment valign)
+        {
+            // Make the label.
+            var label = new Label
+            {
+                Content = text,
+                FontSize = font_size,
+                Background = Brushes.Transparent,
+                BorderBrush = Brushes.Transparent
+            };
+            can.Children.Add(label);
+
+            // Position the label.
+            label.Measure(new Size(double.MaxValue, double.MaxValue));
+
+            double x = location.X;
+            switch (halign)
+            {
+                case HorizontalAlignment.Center:
+                    x -= label.DesiredSize.Width / 2;
+                    break;
+                case HorizontalAlignment.Right:
+                    x -= label.DesiredSize.Width;
+                    break;
+            }
+            Canvas.SetLeft(label, x);
+
+            double y = location.Y;
+            switch (valign)
+            {
+                case VerticalAlignment.Center:
+                    y -= label.DesiredSize.Height / 2;
+                    break;
+                case VerticalAlignment.Bottom:
+                    y -= label.DesiredSize.Height;
+                    break;
+            }
+            Canvas.SetTop(label, y);
         }
 
         private void RenderControlPoints()
         {
-            
+
 
             if (DataContext is not MainViewModel vm) return;
 
             if (vm.Curve is null) return;
 
-            
+
 
             // unsubscribe from existing points
             foreach (UIElement p in CanvasPoints.Children)
@@ -151,8 +220,8 @@ namespace WpfApp1
             {
                 var element = (UIElement)sender;
                 var p2 = e.GetPosition(CanvasPoints);
-                var x = Math.Min(Math.Max(p2.X - dragStart.Value.X, 40), CanvasPoints.ActualWidth - MainViewModel.XMIN);
-                var y = Math.Min(Math.Max(p2.Y - dragStart.Value.Y, 40), CanvasPoints.ActualHeight - MainViewModel.YMIN);
+                var x = Math.Min(Math.Max(p2.X - dragStart.Value.X, MainViewModel.XMIN), CanvasPoints.ActualWidth - MainViewModel.XMIN);
+                var y = Math.Min(Math.Max(p2.Y - dragStart.Value.Y, MainViewModel.YMIN), CanvasPoints.ActualHeight - MainViewModel.YMIN);
 
                 Canvas.SetLeft(element, x - 3);
                 Canvas.SetTop(element, y - 3);
@@ -203,7 +272,7 @@ namespace WpfApp1
             }
 
             if (e.ClickCount == 2)
-                // Add new point
+            // Add new point
             {
                 vm.Add(pos);
                 this.RenderControlPoints();
@@ -215,7 +284,7 @@ namespace WpfApp1
         {
             if (DataContext is MainViewModel vm)
             {
-                vm.Height = e.NewSize.Height - MainViewModel.YMIN;
+                vm.Height = e.NewSize.Height - (2 * MainViewModel.YMIN);
                 vm.Width = e.NewSize.Width - (2 * MainViewModel.XMIN);
 
                 if (vm.Curve is not null)
@@ -229,6 +298,11 @@ namespace WpfApp1
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             HandleInterpolation();
+            if (DataContext is MainViewModel vm)
+            {
+                vm.Reload();
+                RenderControlPoints();
+            }
         }
 
         private void HandleInterpolation()
@@ -265,8 +339,8 @@ namespace WpfApp1
             if (DataContext is not MainViewModel vm) return;
             var pos = e.GetPosition(CanvasPoints);
 
-            var x = Math.Round(Math.Min(Math.Max(pos.X - 40, 0), this.CanvasPoints.ActualWidth - 80));
-            var y = Math.Round(Math.Min(Math.Max(this.CanvasPoints.ActualHeight - 40 - pos.Y, 0), this.CanvasPoints.ActualHeight - 80));
+            var x = Math.Round(Math.Min(Math.Max(pos.X - MainViewModel.XMIN, 0), this.CanvasPoints.ActualWidth - (2 *MainViewModel.XMIN)));
+            var y = Math.Round(Math.Min(Math.Max(this.CanvasPoints.ActualHeight - MainViewModel.YMIN - pos.Y, 0), this.CanvasPoints.ActualHeight - (2 * MainViewModel.YMIN)));
 
             vm.Cursor = new Point(x, y);
 
