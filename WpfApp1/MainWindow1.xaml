@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="MainWindow1" >
+        Title="MainWindow1" 
+        Height="400"
+        Width="600">
 
     <Window.DataContext>
         <local:MainViewModel/>
@@ -15,7 +17,7 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition  Height="Auto"/>
+            <RowDefinition  Height="*"/>
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -27,21 +29,31 @@
             <Button Content="Render" Click="ButtonBase_OnClick"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Margin="10" >
-            <TextBlock Text="{Binding Text}"/>
-            <Border Height="400" Width="600" BorderBrush="Black" BorderThickness="1" Background="LightBlue" 
-                    x:Name="Border"
-                    PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
+        <Grid Grid.Row="1"  >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition  Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="{Binding Text}"/>
+            <Border Grid.Row="1" Background="WhiteSmoke" 
+                    x:Name="CanvasCurve"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    Margin="10"
                     >
                 <Path Stroke="Black" StrokeThickness="1">
                     <Path.Data>
-                        <GeometryGroup x:Name="GeometryGroup">
+                        <GeometryGroup>
                             <PathGeometry>
                                 <PathGeometry.Figures>
                                     <PathFigureCollection>
-                                        <PathFigure StartPoint="0,0" x:Name="PathFigure">
+                                        <PathFigure StartPoint="{Binding StartPoint, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="PathFigure">
                                             <PathFigure.Segments>
-                                                <PathSegmentCollection x:Name="PathSegmentCollection"/>
+                                                <PathSegmentCollection x:Name="PathSegmentCollection">
+                                                    <!--<PolyLineSegment Points="{Binding RenderedPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>-->
+                                                    <PolyQuadraticBezierSegment Points="{Binding RenderedPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </PathSegmentCollection>
                                             </PathFigure.Segments>
                                         </PathFigure>
                                     </PathFigureCollection>
@@ -52,7 +64,16 @@
                 </Path>
 
             </Border>
-        </StackPanel>
+            <Canvas Grid.Row="1" Background="Transparent" 
+                    x:Name="CanvasPoints"
+                    PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
+                    PreviewMouseMove="Canvas_OnPreviewMouseMove"
+                    Margin="10"
+            >
+               
+
+            </Canvas>
+        </Grid>
 
         <!--<WpfPlot Grid.Row="1" Name="WpfPlot1"/>-->
     </Grid>

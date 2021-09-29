@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using WpfApp1.Annotations;
 
 namespace WpfApp1
@@ -47,14 +50,14 @@ namespace WpfApp1
 
     public class MainViewModel : INotifyPropertyChanged
     {
-        private const int WIDTH = 600;
-        private const int HEIGHT = 400;
+        private double WIDTH = 600;
+        private double HEIGHT = 400;
 
         public MainViewModel()
         {
             InterpolationTypes = Enum.GetNames<EInterpolationType>().ToList();
-
-            RenderedPoints = new PointCollection();
+            RenderedPoints = new();
+            InterpolationType = EInterpolationType.EIT_Linear.ToString();
 
             //LoadCurve();
             //RenderCurve();
@@ -68,7 +71,29 @@ namespace WpfApp1
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private List<GeneralizedPoint> _curve;
+        public ObservableCollection<GeneralizedPoint> Curve
+        {
+            get => _curve;
+            set
+            {
+                //if (Equals(value, _curve)) return;
+                _curve = value;
+                OnPropertyChanged();
+
+                RenderCurve();
+            }
+        }
+
+        public PointCollection RenderedPoints
+        {
+            get => _renderedPoints;
+            set
+            {
+                //if (Equals(value, _renderedPoints)) return;
+                _renderedPoints = value;
+                OnPropertyChanged();
+            }
+        }
 
         private string _text;
         public string Text
@@ -88,23 +113,13 @@ namespace WpfApp1
             get => _startPoint;
             set
             {
-                if (value.Equals(_startPoint)) return;
+                //if (value.Equals(_startPoint)) return;
                 _startPoint = value;
                 OnPropertyChanged();
             }
         }
 
-        private PointCollection _renderedPoints;
-        public System.Windows.Media.PointCollection RenderedPoints
-        {
-            get => _renderedPoints;
-            set
-            {
-                if (Equals(value, _renderedPoints)) return;
-                _renderedPoints = value;
-                OnPropertyChanged();
-            }
-        }
+
 
         private bool _isLinear;
         public bool IsLinear
@@ -121,6 +136,8 @@ namespace WpfApp1
         public List<string> InterpolationTypes { get; } = new();
 
         private string _interpolationType;
+        private ObservableCollection<GeneralizedPoint> _curve;
+        private PointCollection _renderedPoints;
 
 
         public string InterpolationType
@@ -134,12 +151,15 @@ namespace WpfApp1
             }
         }
 
-        private EInterpolationType GetInterpolationTypeEnum() => Enum.Parse<EInterpolationType>(InterpolationType);
+        public EInterpolationType GetInterpolationTypeEnum() => Enum.Parse<EInterpolationType>(InterpolationType);
 
-        public void LoadCurve()
+        public void LoadCurve(double h, double w)
         {
+            HEIGHT = h;
+            WIDTH = w;
+
             // load curve
-            _curve = new List<GeneralizedPoint>()
+            Curve = new ObservableCollection<GeneralizedPoint>()
             {
                 new(0, 1),
                 new(2.5, 1),
@@ -182,10 +202,10 @@ namespace WpfApp1
         }
 
         private bool VerifyCurve() => _curve.All(x => x.Verify());
-        private double GetMaxT() => _curve.Select(_ => _.T).Max();
-        private double GetMaxV() => _curve.Select(_ => _.V).Max();
+        public double GetMaxT() => _curve.Select(_ => _.T).Max();
+        public double GetMaxV() => _curve.Select(_ => _.V).Max();
 
-        public RenderedCurve RenderCurve()
+        private void RenderCurve()
         {
             // scale points to canvas
             var maxT = GetMaxT();
@@ -230,26 +250,28 @@ namespace WpfApp1
 
             StartPoint = points.First();
             RenderedPoints = new PointCollection(points.Skip(1));
-
-            return new RenderedCurve(GetInterpolationTypeEnum(), StartPoint, RenderedPoints);
-
-
         }
 
         //public void OnClicked(Point point) => Point1 = point;
         //public void OnClicked2(Point point) => Point2 = point;
         public void Add(Point pos)
         {
-            List<Point> points = new List<Point>();
-            foreach (var point in RenderedPoints)
-            {
-                points.Add(point);
-            }
-
 
 
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /// <summary>
@@ -257,8 +279,6 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow1 : Window
     {
-
-
         public MainWindow1()
         {
             InitializeComponent();
@@ -282,34 +302,25 @@ namespace WpfApp1
 
         }
 
-        private void Border_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var pos = e.GetPosition(this.Border);
-            if (this.DataContext is MainViewModel vm)
-            {
-                vm.Add(pos);
-            }
-        }
-
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is MainViewModel vm)
             {
-                vm.LoadCurve();
+                var h = this.CanvasCurve.ActualHeight;
+                var w = this.CanvasCurve.ActualWidth;
 
-                var curve = vm.RenderCurve();
+                vm.LoadCurve(h, w);
 
+                //this.PathSegmentCollection.Clear();
+                //this.PathFigure.StartPoint = vm.StartPoint;
 
-                this.PathSegmentCollection.Clear();
-                this.PathFigure.StartPoint = curve.StartPoint;
-
-                switch (curve.EInterpolationType)
+                switch (vm.GetInterpolationTypeEnum())
                 {
                     case EInterpolationType.EIT_Linear:
-                        this.PathSegmentCollection.Add(new PolyLineSegment() { Points = curve.RenderedPoints });
+                        //this.PathSegmentCollection.Add(new PolyLineSegment() { Points = vm.RenderedPoints });
                         break;
                     case EInterpolationType.EIT_BezierQuadratic:
-                        this.PathSegmentCollection.Add(new PolyQuadraticBezierSegment() { Points = curve.RenderedPoints });
+                        //this.PathSegmentCollection.Add(new PolyQuadraticBezierSegment() { Points = vm.RenderedPoints });
                         break;
                     case EInterpolationType.EIT_BezierCubic:
                     case EInterpolationType.EIT_Hermite:
@@ -319,18 +330,167 @@ namespace WpfApp1
                 }
 
                 // add points
-                var points = this.GeometryGroup.Children.Where(x => x is EllipseGeometry).ToList();
-                foreach (var groupChild in points)
+                foreach (UIElement p in this.CanvasPoints.Children)
                 {
-                    this.GeometryGroup.Children.Remove(groupChild);
+                    p.MouseDown -= POnMouseDown;
+                    p.MouseUp -= POnMouseUp;
+                    p.MouseMove -= POnMouseMove;
                 }
-                foreach (var point in curve.RenderedPoints)
+
+                CanvasPoints.Children.Clear();
+                foreach (var point in vm.RenderedPoints)
                 {
-                    this.GeometryGroup.Children.Add(new EllipseGeometry(point, 2, 2));
+                    var gpoint = vm.Curve.FirstOrDefault(x => x.RenderPoint == point);
+                    if (gpoint == null)
+                    {
+
+                    }
+
+
+                    var p = new Ellipse
+                    {
+                        Stroke = System.Windows.Media.Brushes.Black,
+                        Fill = System.Windows.Media.Brushes.Yellow,
+                        Width = 8,
+                        Height = 8,
+                        Tag = gpoint
+                    };
+                    Canvas.SetTop(p, point.Y - 3);
+                    Canvas.SetLeft(p, point.X - 3);
+
+                    p.MouseDown += POnMouseDown;
+                    p.MouseUp += POnMouseUp;
+                    p.MouseMove += POnMouseMove;
+
+                    this.CanvasPoints.Children.Add(p);
                 }
+                //var points = this.GeometryGroup.Children.Where(x => x is EllipseGeometry).ToList();
+                //foreach (var groupChild in points)
+                //{
+                //    this.GeometryGroup.Children.Remove(groupChild);
+                //}
+                //foreach (var point in curve.RenderedPoints)
+                //{
+                //    var ellipse = new EllipseGeometry(point, 3, 3);
+
+                //    this.GeometryGroup.Children.Add(ellipse);
+                //}
             }
 
         }
+
+        Point? dragStart = null;
+        private void POnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (dragStart != null && e.LeftButton == MouseButtonState.Pressed)
+            {
+                var element = (UIElement)sender;
+                var p2 = e.GetPosition(this.CanvasPoints);
+                var x = p2.X - dragStart.Value.X;
+                var y = p2.Y - dragStart.Value.Y;
+                Canvas.SetLeft(element, x - 3);
+                Canvas.SetTop(element, y - 3);
+
+                if (element is Ellipse ell && this.DataContext is MainViewModel vm)
+                {
+                    var model = (GeneralizedPoint)ell.Tag;
+
+                    // find point on curve
+                    var f = vm.Curve.FirstOrDefault(_ => _ == model);
+                    if (f != null)
+                    {
+                        // scale down
+                        var nx = x / this.CanvasCurve.ActualWidth * vm.GetMaxT();
+                        var ny = y / this.CanvasCurve.ActualHeight * vm.GetMaxV();
+
+
+                        f.T = nx;
+                        f.V = 1 - ny;
+                        vm.Curve = vm.Curve;
+
+                        
+                    }
+                    else
+                    {
+                        
+                    }
+
+
+                }
+
+            }
+        }
+        private void POnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var element = (UIElement)sender;
+            dragStart = null;
+            element.ReleaseMouseCapture();
+        }
+        private void POnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var element = (UIElement)sender;
+            dragStart = e.GetPosition(element);
+            element.CaptureMouse();
+
+        }
+
+
+
+        private void Border_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+            if (this.DataContext is not MainViewModel vm)
+            {
+                return;
+            }
+            var pos = e.GetPosition(this.CanvasPoints);
+            if (e.ClickCount == 1)
+            {
+
+            }
+            if (e.ClickCount == 2)
+            {
+
+                vm.Add(pos);
+            }
+
+
+        }
+
+        private void Canvas_OnPreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            var pos = e.GetPosition(this.CanvasPoints);
+            //var points = this.GeometryGroup.Children.Where(x => x is EllipseGeometry).ToList();
+            //foreach (var groupChild in points)
+            //{
+            //    var rpos = groupChild.Bounds;
+
+            //    if (pos.X > rpos.Left && pos.X < rpos.Right)
+            //    {
+            //        if (pos.Y < rpos.Bottom && pos.Y > rpos.Top)
+            //        {
+            //            OnMouseOver(groupChild);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        var ell = (groupChild as EllipseGeometry);
+            //        ell.RadiusX = 3;
+            //        ell.RadiusY = 3;
+            //    }
+            //}
+
+        }
+
+        private void OnMouseOver(Geometry groupChild)
+        {
+            var ell = (groupChild as EllipseGeometry);
+            ell.RadiusX = 5;
+            ell.RadiusY = 5;
+        }
+
+
+
     }
 }
 
