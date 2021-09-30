@@ -14,7 +14,7 @@ namespace WpfApp1
     {
         #region fields
 
-        public const double XMIN = 0;   // TODO fix this
+        public const double XMIN = 0;   // TODO fix this at some point
         public const double YMIN = XMIN;
 
         private string _interpolationType;
@@ -376,9 +376,6 @@ namespace WpfApp1
 
             Curve.Insert(idx, point);
 
-            var previousPoint = Curve[idx - 1];
-            var nextPoint = Curve[idx + 1];
-
             switch (GetInterpolationTypeEnum())
             {
                 case EInterpolationType.EIT_Constant:
@@ -387,6 +384,16 @@ namespace WpfApp1
                     break;
                 case EInterpolationType.EIT_BezierQuadratic:
                     {
+                        if (Curve.Count <= idx + 1)
+                        {
+                            return;
+                        }
+                        if (idx < 1)
+                        {
+                            return;
+                        }
+                        var previousPoint = Curve[idx - 1];
+                        var nextPoint = Curve[idx + 1];
                         switch (previousPoint.IsControlPoint)
                         {
                             case false when nextPoint.IsControlPoint:
@@ -409,49 +416,62 @@ namespace WpfApp1
                         break;
                     }
                 case EInterpolationType.EIT_BezierCubic:
-                    switch (previousPoint.IsControlPoint)
                     {
-                        case false:
-                            {
-                                // add two control points before
-                                var vec1 = AddControllPointBefore(nextPoint, point, previousPoint);
-                                var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
-                                var vec2 = AddControllPointBefore(point, ctrlPoint1, point);
-                                var ctrlPoint2 = new GeneralizedPoint(ClampToWorldCanvas(vec2), true);
+                        if (Curve.Count <= idx + 1)
+                        {
+                            return;
+                        }
 
-                                Curve.Insert(idx, ctrlPoint1);
-                                Curve.Insert(idx, ctrlPoint2);
+                        if (idx < 1)
+                        {
+                            return;
+                        }
+                        var previousPoint = Curve[idx - 1];
+                        var nextPoint = Curve[idx + 1];
+                        switch (previousPoint.IsControlPoint)
+                        {
+                            case false:
+                                {
+                                    // add two control points before
+                                    var vec1 = AddControllPointBefore(nextPoint, point, previousPoint);
+                                    var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
+                                    var vec2 = AddControllPointBefore(point, ctrlPoint1, point);
+                                    var ctrlPoint2 = new GeneralizedPoint(ClampToWorldCanvas(vec2), true);
 
-                                break;
-                            }
-                        case true when nextPoint.IsControlPoint:
-                            {
-                                // add one control point before and one after
-                                var vec1 = AddControllPointBefore(nextPoint, point, previousPoint);
-                                var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
-                                var vec2 = AddControllPointAfter(ctrlPoint1, point, nextPoint);
+                                    Curve.Insert(idx, ctrlPoint1);
+                                    Curve.Insert(idx, ctrlPoint2);
 
-                                Curve.Insert(idx, ctrlPoint1);
-                                Curve.Insert(idx + 2, new GeneralizedPoint(ClampToWorldCanvas(vec2), true));
+                                    break;
+                                }
+                            case true when nextPoint.IsControlPoint:
+                                {
+                                    // add one control point before and one after
+                                    var vec1 = AddControllPointBefore(nextPoint, point, previousPoint);
+                                    var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
+                                    var vec2 = AddControllPointAfter(ctrlPoint1, point, nextPoint);
 
-                                break;
-                            }
-                        case true when !nextPoint.IsControlPoint:
-                            {
-                                // add two control points after
-                                var vec1 = AddControllPointAfter(previousPoint, point, nextPoint);
-                                var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
-                                var vec2 = AddControllPointAfter(point, ctrlPoint1, nextPoint);
-                                var ctrlPoint2 = new GeneralizedPoint(ClampToWorldCanvas(vec2), true);
+                                    Curve.Insert(idx, ctrlPoint1);
+                                    Curve.Insert(idx + 2, new GeneralizedPoint(ClampToWorldCanvas(vec2), true));
 
-                                Curve.Insert(idx + 1, ctrlPoint1);
-                                Curve.Insert(idx + 1, ctrlPoint2);
+                                    break;
+                                }
+                            case true when !nextPoint.IsControlPoint:
+                                {
+                                    // add two control points after
+                                    var vec1 = AddControllPointAfter(previousPoint, point, nextPoint);
+                                    var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
+                                    var vec2 = AddControllPointAfter(point, ctrlPoint1, nextPoint);
+                                    var ctrlPoint2 = new GeneralizedPoint(ClampToWorldCanvas(vec2), true);
 
-                                break;
-                            }
+                                    Curve.Insert(idx + 1, ctrlPoint1);
+                                    Curve.Insert(idx + 1, ctrlPoint2);
+
+                                    break;
+                                }
+                        }
+
+                        break;
                     }
-
-                    break;
                 case EInterpolationType.EIT_Hermite:
                 default:
                     throw new ArgumentOutOfRangeException();

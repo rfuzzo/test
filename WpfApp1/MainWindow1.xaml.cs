@@ -200,7 +200,7 @@ namespace WpfApp1
                 var p = new Ellipse
                 {
                     Stroke = Brushes.Black,
-                    Fill = generalizedPoint.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow,
+                    Fill = generalizedPoint.IsSelected ? Brushes.BlueViolet : generalizedPoint.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow,
                     Width = 8,
                     Height = 8,
                     Tag = generalizedPoint
@@ -259,6 +259,13 @@ namespace WpfApp1
             var element = (UIElement)sender;
             _dragStart = null;
             element.ReleaseMouseCapture();
+
+            //if (element is Ellipse { Tag: GeneralizedPoint point } ell)
+            //{
+            //    point.IsSelected = false;
+            //    ell.Fill = point.IsSelected ? Brushes.BlueViolet :
+            //        point.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow;
+            //}
         }
 
         private void POnMouseDown(object sender, MouseButtonEventArgs e)
@@ -266,6 +273,20 @@ namespace WpfApp1
             var element = (UIElement)sender;
             _dragStart = e.GetPosition(element);
             element.CaptureMouse();
+
+            if (element is Ellipse { Tag: GeneralizedPoint point } ell /*&& e.ChangedButton == MouseButton.Right*/ && _isCtrlPressed)
+            {
+                //point.IsSelected = !point.IsSelected;
+                //ell.Fill = point.IsSelected ? Brushes.BlueViolet :
+                //    point.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow;
+
+                // delete curve point
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.Curve.Remove(point);
+                    vm.Reload();
+                }
+            }
         }
 
         #endregion
@@ -282,12 +303,18 @@ namespace WpfApp1
             switch (e.ClickCount)
             {
                 case 1:
-                    // nothing
+                    // capture point
+
+
+
+
+
                     break;
                 // Add new point
                 case 2:
                     vm.AddPoint(pos);
-                    this.RenderPoints();
+                    //this.RenderPoints();
+                    vm.Reload();
                     break;
             }
         }
@@ -360,6 +387,28 @@ namespace WpfApp1
             if (DataContext is MainViewModel vm)
             {
                 vm.CurveReloaded += VmOnCurveReloaded;
+            }
+
+            this.KeyDown += OnKeyDown;
+            this.KeyUp += OnKeyUp;
+        }
+
+        private bool _isCtrlPressed;
+
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                _isCtrlPressed = false;
+            }
+
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                _isCtrlPressed = true;
             }
         }
 

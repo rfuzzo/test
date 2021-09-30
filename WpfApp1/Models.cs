@@ -5,13 +5,6 @@ namespace WpfApp1
 {
     public class GeneralizedPoint
     {
-        
-        public bool IsControlPoint { get; set; }
-
-        public Point? RenderPoint { get; set; }
-
-        public Vector Vector { get; set; }
-
         public GeneralizedPoint(double t, double v, bool isCtrlPoint = false)
         {
             RenderPoint = null;
@@ -25,6 +18,14 @@ namespace WpfApp1
             IsControlPoint = isCtrlPoint;
             Vector = vector;
         }
+
+        public bool IsControlPoint { get; set; }
+
+        public Point? RenderPoint { get; set; }
+
+        public Vector Vector { get; set; }
+
+        public bool IsSelected { get; set; }
 
         public double T
         {
