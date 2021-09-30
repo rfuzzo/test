@@ -13,18 +13,10 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow1 : Window
     {
-
-
-
         public MainWindow1()
         {
             InitializeComponent();
-
-            
         }
-
-       
-       
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
@@ -35,12 +27,7 @@ namespace WpfApp1
                 HandleInterpolation();
             }
 
-            RenderControlPoints();
-
-
-
-
-
+            RenderCurvePoints();
         }
 
         private void DrawAxes()
@@ -49,6 +36,8 @@ namespace WpfApp1
             {
                 var wxmax = /* vm.MaxT * */CanvasPoints.ActualWidth - MainViewModel.XMIN;
                 var wymax = /*vm.MaxV * */CanvasPoints.ActualHeight - MainViewModel.YMIN;
+                var wxmin = /* vm.MaxT * */CanvasPoints.ActualWidth - MainViewModel.XMIN;
+                var wymin = /*vm.MaxV * */CanvasPoints.ActualHeight - MainViewModel.YMIN;
                 const double xstep = 40;
                 const double ystep = 40;
                 const double xtic = 5;
@@ -59,23 +48,33 @@ namespace WpfApp1
                 var p0 = new Point(MainViewModel.XMIN, CanvasPoints.ActualHeight - MainViewModel.XMIN);
                 var p1 = new Point(wxmax, CanvasPoints.ActualHeight - MainViewModel.XMIN);
                 xaxisGeom.Children.Add(new LineGeometry(p0, p1));
+                var p01 = new Point(MainViewModel.XMIN, MainViewModel.XMIN);
+                var p11 = new Point(wxmax, MainViewModel.XMIN);
+                xaxisGeom.Children.Add(new LineGeometry(p01, p11));
 
-                var cnt = 1;
+
                 for (var x = 2 * MainViewModel.XMIN; x <= wxmax; x += xstep)
                 {
-                    
                     var tic0 = new Point(x, CanvasPoints.ActualHeight - MainViewModel.XMIN - ytic);
                     var tic1 = new Point(x, CanvasPoints.ActualHeight - MainViewModel.XMIN + ytic);
                     xaxisGeom.Children.Add(new LineGeometry(tic0, tic1));
 
                     // Label the tic mark's X coordinate.
-                    var tstep = xstep / vm.Width * vm.MaxT;
-                    var t = Math.Round(cnt  * tstep, 2);
+                    var t = Math.Round(vm.ToWorldCoordinateX(x), 2);
                     DrawText(CanvasPoints, t.ToString(),
                         new Point(tic0.X, tic0.Y + 5), 12,
                         HorizontalAlignment.Center,
                         VerticalAlignment.Top);
-                    cnt++;
+
+                    var tic01 = new Point(x, MainViewModel.XMIN - ytic);
+                    var tic11 = new Point(x, MainViewModel.XMIN + ytic);
+                    xaxisGeom.Children.Add(new LineGeometry(tic01, tic11));
+
+                    // Label the tic mark's X coordinate.
+                    DrawText(CanvasPoints, t.ToString(),
+                        new Point(tic01.X, tic01.Y - 25), 12,
+                        HorizontalAlignment.Center,
+                        VerticalAlignment.Top);
                 }
 
                 var xaxis_path = new Path
@@ -92,9 +91,11 @@ namespace WpfApp1
                 p0 = new Point(MainViewModel.XMIN, MainViewModel.YMIN);
                 p1 = new Point(MainViewModel.XMIN, wymax);
                 xaxisGeom.Children.Add(new LineGeometry(p0, p1));
+                p01 = new Point(wxmax, MainViewModel.YMIN);
+                p11 = new Point(wxmax, wymax);
+                xaxisGeom.Children.Add(new LineGeometry(p01, p11));
 
                 // total ticks
-                cnt = 0;
                 for (var y = wymax; y >= MainViewModel.YMIN; y -= ystep)
                 {
                     var tic0 = new Point(MainViewModel.XMIN - xtic, y);
@@ -102,13 +103,21 @@ namespace WpfApp1
                     xaxisGeom.Children.Add(new LineGeometry(tic0, tic1));
 
                     // Label the tic mark's Y coordinate.
-                    var vstep = ystep / vm.Height * vm.MaxV;
-                    var v = Math.Round(cnt * vstep, 2);
+                    var v = Math.Round(vm.ToWorldCoordinateY(y), 2);
                     DrawText(CanvasPoints, v.ToString(),
                         new Point(tic0.X - 15, tic0.Y), 12,
                         HorizontalAlignment.Center,
                         VerticalAlignment.Center);
-                    cnt++;
+
+                    var tic01 = new Point(wxmax - xtic, y);
+                    var tic11 = new Point(wxmax + xtic, y);
+                    xaxisGeom.Children.Add(new LineGeometry(tic0, tic1));
+
+                    // Label the tic mark's Y coordinate.
+                    DrawText(CanvasPoints, v.ToString(),
+                        new Point(tic01.X + 25, tic01.Y), 12,
+                        HorizontalAlignment.Center,
+                        VerticalAlignment.Center);
                 }
 
                 var yaxis_path = new Path
@@ -122,14 +131,13 @@ namespace WpfApp1
             }
         }
 
-        // Position a label at the indicated point.
-        private void DrawText(Canvas can, string text, Point location, double font_size, HorizontalAlignment halign, VerticalAlignment valign)
+        private static void DrawText(Canvas can, string text, Point location, double fontSize, HorizontalAlignment halign, VerticalAlignment valign)
         {
             // Make the label.
             var label = new Label
             {
                 Content = text,
-                FontSize = font_size,
+                FontSize = fontSize,
                 Background = Brushes.Transparent,
                 BorderBrush = Brushes.Transparent
             };
@@ -163,15 +171,16 @@ namespace WpfApp1
             Canvas.SetTop(label, y);
         }
 
-        private void RenderControlPoints()
+        private void RenderCurvePoints()
         {
-
-
-            if (DataContext is not MainViewModel vm) return;
-
-            if (vm.Curve is null) return;
-
-
+            if (DataContext is not MainViewModel vm)
+            {
+                return;
+            }
+            if (vm.Curve is null)
+            {
+                return;
+            }
 
             // unsubscribe from existing points
             foreach (UIElement p in CanvasPoints.Children)
@@ -212,19 +221,19 @@ namespace WpfApp1
 
         #region drag and drop
 
-        private Point? dragStart;
+        private Point? _dragStart;
 
         private void POnMouseMove(object sender, MouseEventArgs e)
         {
-            if (dragStart != null && e.LeftButton == MouseButtonState.Pressed)
+            if (_dragStart != null && e.LeftButton == MouseButtonState.Pressed)
             {
                 var element = (UIElement)sender;
-                var p2 = e.GetPosition(CanvasPoints);
-                var x = Math.Min(Math.Max(p2.X - dragStart.Value.X, MainViewModel.XMIN), CanvasPoints.ActualWidth - MainViewModel.XMIN);
-                var y = Math.Min(Math.Max(p2.Y - dragStart.Value.Y, MainViewModel.YMIN), CanvasPoints.ActualHeight - MainViewModel.YMIN);
+                var pos = e.GetPosition(CanvasPoints);
 
-                Canvas.SetLeft(element, x - 3);
-                Canvas.SetTop(element, y - 3);
+                var cpoint = ClampToCanvas(pos);
+
+                Canvas.SetLeft(element, cpoint.X - 3);
+                Canvas.SetTop(element, cpoint.Y - 3);
 
                 if (element is Ellipse ell && DataContext is MainViewModel vm)
                 {
@@ -234,8 +243,7 @@ namespace WpfApp1
                     var generalizedPoint = vm.Curve.FirstOrDefault(_ => _ == model);
                     if (generalizedPoint != null)
                     {
-                        // scale down
-                        var (t, v) = vm.ScaleDown(x - MainViewModel.XMIN, y - MainViewModel.YMIN);
+                        var (t, v) = vm.ToWorldCoordinates(cpoint.X, cpoint.Y);
                         generalizedPoint.T = t;
                         generalizedPoint.V = v;
 
@@ -248,14 +256,14 @@ namespace WpfApp1
         private void POnMouseUp(object sender, MouseButtonEventArgs e)
         {
             var element = (UIElement)sender;
-            dragStart = null;
+            _dragStart = null;
             element.ReleaseMouseCapture();
         }
 
         private void POnMouseDown(object sender, MouseButtonEventArgs e)
         {
             var element = (UIElement)sender;
-            dragStart = e.GetPosition(element);
+            _dragStart = e.GetPosition(element);
             element.CaptureMouse();
         }
 
@@ -264,22 +272,25 @@ namespace WpfApp1
 
         private void Border_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (DataContext is not MainViewModel vm) return;
-            var pos = e.GetPosition(CanvasPoints);
-            if (e.ClickCount == 1)
+            if (DataContext is not MainViewModel vm)
             {
-                // nothing
+                return;
             }
 
-            if (e.ClickCount == 2)
-            // Add new point
+            var pos = e.GetPosition(CanvasPoints);
+            switch (e.ClickCount)
             {
-                vm.Add(pos);
-                this.RenderControlPoints();
+                case 1:
+                    // nothing
+                    break;
+                // Add new point
+                case 2:
+                    vm.AddPoint(pos);
+                    this.RenderCurvePoints();
+                    break;
             }
         }
 
-        // on canvas size changed
         private void CanvasPoints_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (DataContext is MainViewModel vm)
@@ -290,7 +301,6 @@ namespace WpfApp1
                 if (vm.Curve is not null)
                 {
                     vm.Reload();
-                    //RenderControlPoints();
                 }
             }
         }
@@ -301,7 +311,6 @@ namespace WpfApp1
             if (DataContext is MainViewModel vm)
             {
                 vm.Reload();
-                
             }
         }
 
@@ -337,13 +346,7 @@ namespace WpfApp1
         private void CanvasPoints_OnMouseMove(object sender, MouseEventArgs e)
         {
             if (DataContext is not MainViewModel vm) return;
-            var pos = e.GetPosition(CanvasPoints);
-
-            var x = Math.Round(Math.Min(Math.Max(pos.X - MainViewModel.XMIN, 0), this.CanvasPoints.ActualWidth - (2 *MainViewModel.XMIN)));
-            var y = Math.Round(Math.Min(Math.Max(this.CanvasPoints.ActualHeight - MainViewModel.YMIN - pos.Y, 0), this.CanvasPoints.ActualHeight - (2 * MainViewModel.YMIN)));
-
-            vm.Cursor = new Point(x, y);
-
+            vm.Cursor = ClampToCanvas(e.GetPosition(CanvasPoints));
         }
 
         private void MainWindow1_OnLoaded(object sender, RoutedEventArgs e)
@@ -352,13 +355,19 @@ namespace WpfApp1
             {
                 vm.CurveReloaded += VmOnCurveReloaded;
             }
-
         }
 
-        private void VmOnCurveReloaded(object sender, EventArgs e)
-        {
-            RenderControlPoints();
+        private void VmOnCurveReloaded(object sender, EventArgs e) => RenderCurvePoints();
 
+        private Point ClampToCanvas(Point pos)
+        {
+            var x = Math.Min(
+                Math.Max(pos.X - MainViewModel.XMIN, 0),
+                this.CanvasPoints.ActualWidth - (2 * MainViewModel.XMIN));
+            var y = Math.Min(
+                Math.Max(pos.Y - MainViewModel.YMIN, 0),
+                this.CanvasPoints.ActualHeight - (2 * MainViewModel.YMIN));
+            return new Point(x, y);
         }
     }
 }

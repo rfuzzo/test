@@ -12,11 +12,10 @@ namespace WpfApp1
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        public const double XMIN = 40;
-        public const double YMIN = XMIN;
-
-
         #region fields
+
+        public const double XMIN = 0;
+        public const double YMIN = XMIN;
 
         private string _interpolationType;
         private ObservableCollection<GeneralizedPoint> _curve;
@@ -34,24 +33,18 @@ namespace WpfApp1
             InterpolationTypes = Enum.GetNames<EInterpolationType>().ToList();
             RenderedPoints = new PointCollection();
             InterpolationType = EInterpolationType.EIT_Linear.ToString();
-
         }
 
         #region properties
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         public event EventHandler CurveReloaded;
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        protected void OnCurveReloaded()
-        {
-            CurveReloaded?.Invoke(this, EventArgs.Empty);
-        }
+        private void OnCurveReloaded() => CurveReloaded?.Invoke(this, EventArgs.Empty);
 
         public bool IsLoaded { get; set; }
 
@@ -141,9 +134,8 @@ namespace WpfApp1
         {
             get
             {
-                var (nx, ny) = ScaleDown(Cursor.X, Cursor.Y);
-                //return $"{Cursor.X} - {Cursor.Y} / {Math.Round(nx, 2)} - {Math.Round(MaxV - ny, 2)}";
-                return $"T : {Math.Round(nx, 2)} - V : {Math.Round(MaxV - ny, 2)}";
+                var (nx, ny) = ToWorldCoordinates(Cursor.X, Cursor.Y);
+                return $"T : {Math.Round(nx, 2)} - V : {Math.Round(ny, 2)}";
             }
         }
 
@@ -200,7 +192,31 @@ namespace WpfApp1
             }
         }
 
+        public double ScaleX => Width / (MaxT - MinT);
+        public double ScaleY => Height / (MaxV - MinV);
+        public double ScaleXInverse => (MaxT - MinT) / Width;
+        public double ScaleYInverse => (MaxV - MinV) / Height;
+
+
         #endregion
+
+        /// <summary>
+        ///     Scales a canvas point to world coordinates
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public (double t, double v) ToWorldCoordinates(double x, double y)
+        {
+            var t = ToWorldCoordinateX(x);
+            var v = ToWorldCoordinateY(y);
+            return (t, v);
+        }
+        public double ToWorldCoordinateX(double x) => (x * ScaleXInverse) + MinT;
+        public double ToWorldCoordinateY(double y) => ( (Height - y) * ScaleYInverse) + MinV ;//+ (MaxV - MinV);
+
+        public double ToCanvasCoordinateX(double x) => (x - MinT) * ScaleX;
+        public double ToCanvasCoordinateY(double y) => Height - (y - MinV) * ScaleY;
 
         private double GetCurveMinT() => Curve.Min(_ => _.T);
         private double GetCurveMaxT() => Curve.Max(_ => _.T);
@@ -217,7 +233,7 @@ namespace WpfApp1
             // load curve
             var c = new List<GeneralizedPoint>
             {
-                new(0, 1.5),
+                new(-5, 1.5),
                 new(2.5, 1),
                 new(10, 1),
                 new(17.1, 0.99),
@@ -272,32 +288,20 @@ namespace WpfApp1
         }
 
         /// <summary>
+        ///     Get the interpolation type as enum
         /// </summary>
         /// <returns></returns>
-        public EInterpolationType GetInterpolationTypeEnum()
-        {
-            return Enum.Parse<EInterpolationType>(InterpolationType);
-        }
+        public EInterpolationType GetInterpolationTypeEnum() => Enum.Parse<EInterpolationType>(InterpolationType);
 
-        private bool VerifyCurve()
-        {
-            return _curve.All(x => x.Verify());
-        }
+        private bool VerifyCurve() => _curve.All(x => x.Verify());
 
         private void RenderCurve()
         {
             // scale points to canvas
-            var maxT = MaxT;
-            var maxV = MaxV;
-
             foreach (var p in _curve)
             {
-                var normalizedT = p.T / maxT;
-                var normalizedV = 1 - p.V / maxV;
-
-                var scaledT = Math.Round(normalizedT * Width) + XMIN;
-                var scaledV = Math.Round(normalizedV * Height) + YMIN;
-
+                var scaledT = Math.Round(ToCanvasCoordinateX(p.T) + XMIN);
+                var scaledV = Math.Round(ToCanvasCoordinateY(p.V) + YMIN);
                 p.RenderPoint = new Point(scaledT, scaledV);
             }
 
@@ -336,10 +340,10 @@ namespace WpfApp1
         ///     Add a point to the curve
         /// </summary>
         /// <param name="pos"></param>
-        public void Add(Point pos)
+        public void AddPoint(Point pos)
         {
             // Add single point
-            var (t, v) = ScaleDown(pos.X - XMIN, pos.Y - YMIN);
+            var (t, v) = ToWorldCoordinates(pos.X - XMIN, pos.Y - YMIN);
             var point = new GeneralizedPoint(t, v);
 
             // insert
@@ -399,13 +403,6 @@ namespace WpfApp1
 
             Reload();
 
-        }
-
-        public (double t, double v) ScaleDown(double x, double y)
-        {
-            var t = x / Width * MaxT;
-            var v = MaxV - (y / Height * MaxV);
-            return (t, v);
         }
 
         /// <summary>
