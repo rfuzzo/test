@@ -20,7 +20,7 @@ namespace WpfApp1
         {
             InitializeComponent();
 
-
+            
         }
 
        
@@ -239,7 +239,7 @@ namespace WpfApp1
                         generalizedPoint.T = t;
                         generalizedPoint.V = v;
 
-                        vm.Reload();
+                        vm.Reload(false);
                     }
                 }
             }
@@ -290,7 +290,7 @@ namespace WpfApp1
                 if (vm.Curve is not null)
                 {
                     vm.Reload();
-                    RenderControlPoints();
+                    //RenderControlPoints();
                 }
             }
         }
@@ -301,7 +301,7 @@ namespace WpfApp1
             if (DataContext is MainViewModel vm)
             {
                 vm.Reload();
-                RenderControlPoints();
+                
             }
         }
 
@@ -343,6 +343,21 @@ namespace WpfApp1
             var y = Math.Round(Math.Min(Math.Max(this.CanvasPoints.ActualHeight - MainViewModel.YMIN - pos.Y, 0), this.CanvasPoints.ActualHeight - (2 * MainViewModel.YMIN)));
 
             vm.Cursor = new Point(x, y);
+
+        }
+
+        private void MainWindow1_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.CurveReloaded += VmOnCurveReloaded;
+            }
+
+        }
+
+        private void VmOnCurveReloaded(object sender, EventArgs e)
+        {
+            RenderControlPoints();
 
         }
     }

@@ -24,8 +24,8 @@ namespace WpfApp1
         private string _text;
         private Point _startPoint;
         private Point _cursor;
-        private string _minX;
-        private string _maxX;
+        private double _minX;
+        private double _maxX;
 
         #endregion
 
@@ -40,11 +40,17 @@ namespace WpfApp1
         #region properties
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler CurveReloaded;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected void OnCurveReloaded()
+        {
+            CurveReloaded?.Invoke(this, EventArgs.Empty);
         }
 
         public bool IsLoaded { get; set; }
@@ -124,11 +130,12 @@ namespace WpfApp1
             }
         }
 
-        public double MaxT { get; set; }
         public double MinT { get; set; }
+        public double MaxT { get; set; }
 
-        public double MaxV { get; set; }
         public double MinV { get; set; }
+        public double MaxV { get; set; }
+
 
         public string CursorPos
         {
@@ -140,30 +147,31 @@ namespace WpfApp1
             }
         }
 
-        public string MinX
+        public double MinX
         {
             get => _minX;
             set
             {
-                if (value == _minX) return;
-                _minX = value;
+                var calculatedValue = Curve is null ? value : Math.Min(value, GetCurveMinT());
+                _minX = calculatedValue;
                 OnPropertyChanged();
 
-                MinT = Math.Min(double.Parse(_minX), MinT);
+                MinT = _minX;
                 Reload();
             }
         }
 
-        public string MaxX
+        public double MaxX
         {
             get => _maxX;
             set
             {
-                if (value == _maxX) return;
-                _maxX = value;
+                var calculatedValue = Curve is null ? value : Math.Max(value, GetCurveMaxT());
+
+                _maxX = calculatedValue;
                 OnPropertyChanged();
 
-                MaxT = Math.Max(double.Parse(_maxX), MaxT);
+                MaxT = _maxX;
                 Reload();
             }
         }
@@ -194,6 +202,11 @@ namespace WpfApp1
 
         #endregion
 
+        private double GetCurveMinT() => Curve.Min(_ => _.T);
+        private double GetCurveMaxT() => Curve.Max(_ => _.T);
+        private double GetCurveMinV() => Curve.Min(_ => _.V);
+        private double GetCurveMaxV() => Curve.Max(_ => _.V);
+
         /// <summary>
         ///     Load a curve into the editor
         /// </summary>
@@ -211,12 +224,14 @@ namespace WpfApp1
                 new(25, 0.25)
             };
 
-            MaxT = c.Max(_ => _.T);
             MinT = c.Min(_ => _.T);
-            MinX = MinT.ToString();
-            MaxX = MaxT.ToString();
+            MaxT = c.Max(_ => _.T);
+            MinX = MinT;
+            MaxX = MaxT;
 
+            MinV = c.Min(_ => _.V);
             MaxV = c.Max(_ => _.V);
+
 
             Curve = new ObservableCollection<GeneralizedPoint>(c);
 
@@ -396,11 +411,20 @@ namespace WpfApp1
         /// <summary>
         ///     Re-renders the curve
         /// </summary>
-        public void Reload()
+        public void Reload(bool raiseEvent = true)
         {
-            if (Curve is null) return;
+            if (Curve is null)
+            {
+                return;
+            }
+
             OnPropertyChanged(nameof(Curve));
             RenderCurve();
+
+            if (raiseEvent)
+            {
+                OnCurveReloaded();
+            }
         }
     }
 }
