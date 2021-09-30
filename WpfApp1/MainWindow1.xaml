@@ -7,8 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow1" 
 
-        Height="400"
-        Width="600"
+        
         
         Loaded="MainWindow1_OnLoaded"
         >
@@ -22,6 +21,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition  Height="*"/>
+            <RowDefinition  Height="Auto"/>
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -32,12 +32,7 @@
                       SelectedItem="{Binding Path=InterpolationType}"/>
             <Separator Width="20"/>
             <Button Content="Load Curve" Click="ButtonBase_OnClick"/>
-            <Label Width="150" Content="{Binding CursorPos}" />
-            <Label Width="Auto" Content="MinX" />
-            <TextBox Width="50" Text="{Binding MinX}"/>
-            <Label Width="Auto" Content="MaxX" />
-            <TextBox Width="50" Text="{Binding MaxX}"/>
-            <TextBox/>
+
         </StackPanel>
 
         <Grid Grid.Row="1"  >
@@ -157,5 +152,23 @@
         </Grid>
 
         <!--<WpfPlot Grid.Row="1" Name="WpfPlot1"/>-->
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <Label Width="150" Content="{Binding CursorPos}" />
+
+            <Separator Width="20"/>
+
+            <Label Width="Auto" Content="MinT" />
+            <TextBox Width="50" Text="{Binding MinX}"/>
+            <Label Width="Auto" Content="MaxT" />
+            <TextBox Width="50" Text="{Binding MaxX}"/>
+
+            <Label Width="Auto" Content="MinV" />
+            <TextBox Width="50" Text="{Binding MinY}"/>
+            <Label Width="Auto" Content="MaxV" />
+            <TextBox Width="50" Text="{Binding MaxY}"/>
+
+        </StackPanel>
+
     </Grid>
 </Window>

@@ -25,6 +25,8 @@ namespace WpfApp1
         private Point _cursor;
         private double _minX;
         private double _maxX;
+        private double _minY;
+        private double _maxY;
 
         #endregion
 
@@ -168,29 +170,35 @@ namespace WpfApp1
             }
         }
 
-        public double TransX
+        public double MinY
         {
-            get
+            get => _minY;
+            set
             {
-                //if (CanvasGrid != null)
-                {
-                    return (/*Width  zoom - */Width) / 2;
-                }
-                //return 0;
+                var calculatedValue = Curve is null ? value : Math.Min(value, GetCurveMinV());
+                _minY = calculatedValue;
+                OnPropertyChanged();
+
+                MinV = _minY;
+                Reload();
             }
         }
 
-        public double TransY
+        public double MaxY
         {
-            get
+            get => _maxY;
+            set
             {
-                // if (CanvasGrid != null)
-                {
-                    return (/* CanvasGrid.Height  zoom -*/ Height) / 2;
-                }
-                return 0;
+                var calculatedValue = Curve is null ? value : Math.Max(value, GetCurveMaxV());
+
+                _maxY = calculatedValue;
+                OnPropertyChanged();
+
+                MaxV = _maxY;
+                Reload();
             }
         }
+
 
         public double ScaleX => Width / (MaxT - MinT);
         public double ScaleY => Height / (MaxV - MinV);
@@ -237,7 +245,7 @@ namespace WpfApp1
                 new(2.5, 1),
                 new(10, 1),
                 new(17.1, 0.99),
-                new(25, 0.25)
+                new(25, -0.25)
             };
 
             MinT = c.Min(_ => _.T);
@@ -247,6 +255,8 @@ namespace WpfApp1
 
             MinV = c.Min(_ => _.V);
             MaxV = c.Max(_ => _.V);
+            MinY = MinV;
+            MaxY = MaxV;
 
 
             Curve = new ObservableCollection<GeneralizedPoint>(c);
