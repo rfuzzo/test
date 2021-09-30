@@ -221,7 +221,7 @@ namespace WpfApp1
             return (t, v);
         }
         public double ToWorldCoordinateX(double x) => (x * ScaleXInverse) + MinT;
-        public double ToWorldCoordinateY(double y) => ((Height - y) * ScaleYInverse) + MinV;//+ (MaxV - MinV);
+        public double ToWorldCoordinateY(double y) => ((Height - y) * ScaleYInverse) + MinV;
 
         public double ToCanvasCoordinateX(double x) => (x - MinT) * ScaleX;
         public double ToCanvasCoordinateY(double y) => Height - (y - MinV) * ScaleY;
@@ -384,11 +384,7 @@ namespace WpfApp1
                     break;
                 case EInterpolationType.EIT_BezierQuadratic:
                     {
-                        if (Curve.Count <= idx + 1)
-                        {
-                            return;
-                        }
-                        if (idx < 1)
+                        if (Curve.Count <= idx + 1 || idx < 1)
                         {
                             return;
                         }
@@ -417,12 +413,7 @@ namespace WpfApp1
                     }
                 case EInterpolationType.EIT_BezierCubic:
                     {
-                        if (Curve.Count <= idx + 1)
-                        {
-                            return;
-                        }
-
-                        if (idx < 1)
+                        if (Curve.Count <= idx + 1 || idx < 1)
                         {
                             return;
                         }

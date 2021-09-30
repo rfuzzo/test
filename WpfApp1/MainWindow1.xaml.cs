@@ -303,12 +303,7 @@ namespace WpfApp1
             switch (e.ClickCount)
             {
                 case 1:
-                    // capture point
-
-
-
-
-
+                    // 
                     break;
                 // Add new point
                 case 2:
@@ -344,7 +339,11 @@ namespace WpfApp1
 
         private void HandleInterpolation()
         {
-            if (DataContext is not MainViewModel vm) return;
+            if (DataContext is not MainViewModel vm)
+            {
+                return;
+            }
+
             if (!vm.IsLoaded)
             {
                 return;
@@ -353,7 +352,7 @@ namespace WpfApp1
             // handle visibility
             switch (vm.GetInterpolationTypeEnum())
             {
-                    
+
                 case EInterpolationType.EIT_Linear:
                     CanvasLinearCurve.Visibility = Visibility.Visible;
                     CanvasQuadraticCurve.Visibility = Visibility.Collapsed;
@@ -414,7 +413,7 @@ namespace WpfApp1
 
         private void VmOnCurveReloaded(object sender, EventArgs e) => RenderPoints();
 
-        
+
     }
 }
 
