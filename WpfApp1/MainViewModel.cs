@@ -14,7 +14,7 @@ namespace WpfApp1
     {
         #region fields
 
-        public const double XMIN = 0;
+        public const double XMIN = 0;   // TODO fix this
         public const double YMIN = XMIN;
 
         private string _interpolationType;
@@ -221,7 +221,7 @@ namespace WpfApp1
             return (t, v);
         }
         public double ToWorldCoordinateX(double x) => (x * ScaleXInverse) + MinT;
-        public double ToWorldCoordinateY(double y) => ( (Height - y) * ScaleYInverse) + MinV ;//+ (MaxV - MinV);
+        public double ToWorldCoordinateY(double y) => ((Height - y) * ScaleYInverse) + MinV;//+ (MaxV - MinV);
 
         public double ToCanvasCoordinateX(double x) => (x - MinT) * ScaleX;
         public double ToCanvasCoordinateY(double y) => Height - (y - MinV) * ScaleY;
@@ -274,23 +274,29 @@ namespace WpfApp1
         {
             switch (GetInterpolationTypeEnum())
             {
+                case EInterpolationType.EIT_Constant:
                 case EInterpolationType.EIT_Linear:
+                    // no control points
                     foreach (var p in Curve)
                     {
                         p.IsControlPoint = false;
                     }
-
                     break;
                 case EInterpolationType.EIT_BezierQuadratic:
-                    // if even amount of points: not a quadratic curve
+                    // every second point is a control point
                     for (var i = 0; i < Curve.Count; i++)
                     {
                         Curve[i].IsControlPoint = i % 2 != 0;
                     }
-
                     break;
-                case EInterpolationType.EIT_Constant:
                 case EInterpolationType.EIT_BezierCubic:
+                    // every second and third point is a control point
+                    for (var i = 0; i < Curve.Count; i++)
+                    {
+                        Curve[i].IsControlPoint = i % 2 != 0;
+                        Curve[i].IsControlPoint = i % 3 != 0;
+                    }
+                    break;
                 case EInterpolationType.EIT_Hermite:
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -325,16 +331,17 @@ namespace WpfApp1
             // render bezier segments
             switch (GetInterpolationTypeEnum())
             {
+                case EInterpolationType.EIT_Constant:
                 case EInterpolationType.EIT_Linear:
-                    // only take proper points (depending on LoadCurve)
+                    // only take proper points (depending on first loaded curve)
                     var linearCurve = _curve.Where(x => !x.IsControlPoint).Select(x => x.RenderPoint.Value);
                     points = linearCurve.ToList();
                     break;
                 case EInterpolationType.EIT_BezierQuadratic:
+                case EInterpolationType.EIT_BezierCubic:
+                    // take all
                     points = _curve.Select(x => x.RenderPoint.Value).ToList();
                     break;
-                case EInterpolationType.EIT_Constant:
-                case EInterpolationType.EIT_BezierCubic:
                 case EInterpolationType.EIT_Hermite:
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -342,8 +349,6 @@ namespace WpfApp1
 
             StartPoint = points.First();
             RenderedPoints = new PointCollection(points.Skip(1));
-
-
         }
 
         /// <summary>
@@ -371,40 +376,81 @@ namespace WpfApp1
 
             Curve.Insert(idx, point);
 
+            var previousPoint = Curve[idx - 1];
+            var nextPoint = Curve[idx + 1];
+
             switch (GetInterpolationTypeEnum())
             {
                 case EInterpolationType.EIT_Constant:
                 case EInterpolationType.EIT_Linear:
+                    // do nothing
                     break;
                 case EInterpolationType.EIT_BezierQuadratic:
                     {
-                        var previousPoint = Curve[idx - 1];
-                        var nextPoint = Curve[idx + 1];
-                        if (!previousPoint.IsControlPoint && nextPoint.IsControlPoint)
+                        switch (previousPoint.IsControlPoint)
                         {
-                            // add one control point before
-                            var ct = Math.Max(0, (t + previousPoint.T) / 2);
-                            var cv = Math.Max(0, (v + previousPoint.V) / 2);
-
-                            var ctrlPoint = new GeneralizedPoint(ct, cv, true);
-                            Curve.Insert(idx, ctrlPoint);
-                        }
-                        else if (previousPoint.IsControlPoint && !nextPoint.IsControlPoint)
-                        {
-                            // add one control point after
-                            var ct = Math.Max(0, (nextPoint.T + t) / 2);
-                            var cv = Math.Max(0, (nextPoint.V + v) / 2);
-
-                            var ctrlPoint = new GeneralizedPoint(ct, cv, true);
-                            Curve.Insert(idx + 1, ctrlPoint);
-                        }
-                        else
-                        {
-                            throw new NotImplementedException();
+                            case false when nextPoint.IsControlPoint:
+                                {
+                                    // add continuous ctrl point before
+                                    var ctrlPoint1 = AddControllPointBefore(nextPoint, point, previousPoint);
+                                    Curve.Insert(idx, new GeneralizedPoint(ClampToWorldCanvas(ctrlPoint1), true));
+                                    break;
+                                }
+                            case true when !nextPoint.IsControlPoint:
+                                {
+                                    // add continuous control point after
+                                    var ctrlPoint2 = AddControllPointAfter(previousPoint, point, nextPoint);
+                                    Curve.Insert(idx + 1, new GeneralizedPoint(ClampToWorldCanvas(ctrlPoint2), true));
+                                    break;
+                                }
+                            default:
+                                throw new ArgumentOutOfRangeException();
                         }
                         break;
                     }
                 case EInterpolationType.EIT_BezierCubic:
+                    switch (previousPoint.IsControlPoint)
+                    {
+                        case false:
+                            {
+                                // add two control points before
+                                var vec1 = AddControllPointBefore(nextPoint, point, previousPoint);
+                                var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
+                                var vec2 = AddControllPointBefore(point, ctrlPoint1, point);
+                                var ctrlPoint2 = new GeneralizedPoint(ClampToWorldCanvas(vec2), true);
+
+                                Curve.Insert(idx, ctrlPoint1);
+                                Curve.Insert(idx, ctrlPoint2);
+
+                                break;
+                            }
+                        case true when nextPoint.IsControlPoint:
+                            {
+                                // add one control point before and one after
+                                var vec1 = AddControllPointBefore(nextPoint, point, previousPoint);
+                                var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
+                                var vec2 = AddControllPointAfter(ctrlPoint1, point, nextPoint);
+
+                                Curve.Insert(idx, ctrlPoint1);
+                                Curve.Insert(idx + 2, new GeneralizedPoint(ClampToWorldCanvas(vec2), true));
+
+                                break;
+                            }
+                        case true when !nextPoint.IsControlPoint:
+                            {
+                                // add two control points after
+                                var vec1 = AddControllPointAfter(previousPoint, point, nextPoint);
+                                var ctrlPoint1 = new GeneralizedPoint(ClampToWorldCanvas(vec1), true);
+                                var vec2 = AddControllPointAfter(point, ctrlPoint1, nextPoint);
+                                var ctrlPoint2 = new GeneralizedPoint(ClampToWorldCanvas(vec2), true);
+
+                                Curve.Insert(idx + 1, ctrlPoint1);
+                                Curve.Insert(idx + 1, ctrlPoint2);
+
+                                break;
+                            }
+                    }
+
                     break;
                 case EInterpolationType.EIT_Hermite:
                 default:
@@ -413,6 +459,24 @@ namespace WpfApp1
 
             Reload();
 
+        }
+
+        private static Vector AddControllPointAfter(GeneralizedPoint previousPoint, GeneralizedPoint point,
+            GeneralizedPoint nextPoint)
+        {
+            var ctrlPoint2 = -(previousPoint.Vector - point.Vector);
+            ctrlPoint2.Normalize();
+            ctrlPoint2 = point.Vector + (ctrlPoint2 * (nextPoint.Vector - point.Vector).Length / 2);
+            return ctrlPoint2;
+        }
+
+        private static Vector AddControllPointBefore(GeneralizedPoint nextPoint, GeneralizedPoint point,
+            GeneralizedPoint previousPoint)
+        {
+            var ctrlPoint1 = -(nextPoint.Vector - point.Vector);
+            ctrlPoint1.Normalize();
+            ctrlPoint1 = point.Vector + (ctrlPoint1 * (point.Vector - previousPoint.Vector).Length / 2);
+            return ctrlPoint1;
         }
 
         /// <summary>
@@ -432,6 +496,34 @@ namespace WpfApp1
             {
                 OnCurveReloaded();
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public Point ClampToCanvas(Point pos)
+        {
+            var x = Math.Min(
+                Math.Max(pos.X - XMIN, 0),
+                Width - 2 * XMIN);
+            var y = Math.Min(
+                Math.Max(pos.Y - YMIN, 0),
+                Height - 2 * YMIN);
+            return new Point(x, y);
+        }
+
+        // TODO: remove after scrolling
+        private Vector ClampToWorldCanvas(Vector pos)
+        {
+            var x = Math.Min(
+                Math.Max(pos.X - XMIN, MinT),
+                MaxT - 2 * XMIN);
+            var y = Math.Min(
+                Math.Max(pos.Y - YMIN, MinV),
+                MaxV - 2 * YMIN);
+            return new Vector(x, y);
         }
     }
 }

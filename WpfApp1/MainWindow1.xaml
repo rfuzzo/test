@@ -43,12 +43,10 @@
 
             <TextBlock Grid.Row="0" Text="{Binding Text}"/>
 
-
+            <!-- GRID -->
             <Canvas Grid.Row="1" 
                     x:Name="CanvasGrid"
                     Margin="50"
-
-                    
             >
                 <!--DataContext="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow1}}}"-->
 
@@ -81,40 +79,9 @@
                 </Canvas.Background>
             </Canvas>
 
-
-            <Border Grid.Row="1" 
-                    x:Name="CanvasQuadraticCurve"
-                    BorderBrush="Black"
-                    BorderThickness="1"
-                    Margin="50"
-                    Visibility="Collapsed"
-            >
-                <Path Stroke="Black" StrokeThickness="1">
-                    <Path.Data>
-                        <GeometryGroup>
-                            <PathGeometry>
-                                <PathGeometry.Figures>
-                                    <PathFigureCollection>
-                                        <PathFigure StartPoint="{Binding StartPoint, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
-                                            <PathFigure.Segments>
-                                                <PathSegmentCollection>
-                                                    <PolyQuadraticBezierSegment Points="{Binding RenderedPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                                </PathSegmentCollection>
-                                            </PathFigure.Segments>
-                                        </PathFigure>
-                                    </PathFigureCollection>
-                                </PathGeometry.Figures>
-                            </PathGeometry>
-                        </GeometryGroup>
-                    </Path.Data>
-                </Path>
-
-            </Border>
-
+            <!-- Linear -->
             <Border Grid.Row="1"  
                     x:Name="CanvasLinearCurve"
-                    BorderBrush="Black"
-                    BorderThickness="1"
                     Margin="50"
                     Visibility="Collapsed"
             >
@@ -140,15 +107,70 @@
 
             </Border>
 
+            <!-- Quadratic -->
+            <Border Grid.Row="1" 
+                    x:Name="CanvasQuadraticCurve"
+                    Margin="50"
+                    Visibility="Collapsed"
+            >
+                <Path Stroke="Black" StrokeThickness="1">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <PathGeometry>
+                                <PathGeometry.Figures>
+                                    <PathFigureCollection>
+                                        <PathFigure StartPoint="{Binding StartPoint, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <PathFigure.Segments>
+                                                <PathSegmentCollection>
+                                                    <PolyQuadraticBezierSegment Points="{Binding RenderedPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </PathSegmentCollection>
+                                            </PathFigure.Segments>
+                                        </PathFigure>
+                                    </PathFigureCollection>
+                                </PathGeometry.Figures>
+                            </PathGeometry>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+
+            </Border>
+
+            <!-- Cubic -->
+            <Border Grid.Row="1" 
+                    x:Name="CanvasCubicCurve"
+                    Margin="50"
+                    Visibility="Collapsed"
+            >
+                <Path Stroke="Black" StrokeThickness="1">
+                    <Path.Data>
+                        <GeometryGroup>
+                            <PathGeometry>
+                                <PathGeometry.Figures>
+                                    <PathFigureCollection>
+                                        <PathFigure StartPoint="{Binding StartPoint, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <PathFigure.Segments>
+                                                <PathSegmentCollection>
+                                                    <PolyBezierSegment Points="{Binding RenderedPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </PathSegmentCollection>
+                                            </PathFigure.Segments>
+                                        </PathFigure>
+                                    </PathFigureCollection>
+                                </PathGeometry.Figures>
+                            </PathGeometry>
+                        </GeometryGroup>
+                    </Path.Data>
+                </Path>
+
+            </Border>
+
+            <!-- POINTS OVERLAY -->
             <Canvas Grid.Row="1" 
                     x:Name="CanvasPoints"
-                    PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
                     Margin="50"
+                    PreviewMouseLeftButtonDown="Border_OnPreviewMouseLeftButtonDown"
                     SizeChanged="CanvasPoints_OnSizeChanged"
                     MouseMove="CanvasPoints_OnMouseMove"
-                    Background="Transparent"
-            >
-            </Canvas>
+                    Background="Transparent"/>
         </Grid>
 
         <!--<WpfPlot Grid.Row="1" Name="WpfPlot1"/>-->

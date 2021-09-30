@@ -27,7 +27,7 @@ namespace WpfApp1
                 HandleInterpolation();
             }
 
-            RenderCurvePoints();
+            RenderPoints();
         }
 
         private void DrawAxes()
@@ -61,7 +61,7 @@ namespace WpfApp1
 
                     // Label the tic mark's X coordinate.
                     var t = Math.Round(vm.ToWorldCoordinateX(x), 2);
-                    DrawText(CanvasPoints, t.ToString(),
+                    DrawLabels(CanvasPoints, t.ToString(),
                         new Point(tic0.X, tic0.Y + 5), 12,
                         HorizontalAlignment.Center,
                         VerticalAlignment.Top);
@@ -71,7 +71,7 @@ namespace WpfApp1
                     xaxisGeom.Children.Add(new LineGeometry(tic01, tic11));
 
                     // Label the tic mark's X coordinate.
-                    DrawText(CanvasPoints, t.ToString(),
+                    DrawLabels(CanvasPoints, t.ToString(),
                         new Point(tic01.X, tic01.Y - 25), 12,
                         HorizontalAlignment.Center,
                         VerticalAlignment.Top);
@@ -104,7 +104,7 @@ namespace WpfApp1
 
                     // Label the tic mark's Y coordinate.
                     var v = Math.Round(vm.ToWorldCoordinateY(y), 2);
-                    DrawText(CanvasPoints, v.ToString(),
+                    DrawLabels(CanvasPoints, v.ToString(),
                         new Point(tic0.X - 15, tic0.Y), 12,
                         HorizontalAlignment.Center,
                         VerticalAlignment.Center);
@@ -114,7 +114,7 @@ namespace WpfApp1
                     xaxisGeom.Children.Add(new LineGeometry(tic0, tic1));
 
                     // Label the tic mark's Y coordinate.
-                    DrawText(CanvasPoints, v.ToString(),
+                    DrawLabels(CanvasPoints, v.ToString(),
                         new Point(tic01.X + 25, tic01.Y), 12,
                         HorizontalAlignment.Center,
                         VerticalAlignment.Center);
@@ -131,7 +131,7 @@ namespace WpfApp1
             }
         }
 
-        private static void DrawText(Canvas can, string text, Point location, double fontSize, HorizontalAlignment halign, VerticalAlignment valign)
+        private static void DrawLabels(Canvas can, string text, Point location, double fontSize, HorizontalAlignment halign, VerticalAlignment valign)
         {
             // Make the label.
             var label = new Label
@@ -171,7 +171,7 @@ namespace WpfApp1
             Canvas.SetTop(label, y);
         }
 
-        private void RenderCurvePoints()
+        private void RenderPoints()
         {
             if (DataContext is not MainViewModel vm)
             {
@@ -225,17 +225,18 @@ namespace WpfApp1
 
         private void POnMouseMove(object sender, MouseEventArgs e)
         {
+            if (DataContext is not MainViewModel vm) return;
             if (_dragStart != null && e.LeftButton == MouseButtonState.Pressed)
             {
                 var element = (UIElement)sender;
                 var pos = e.GetPosition(CanvasPoints);
 
-                var cpoint = ClampToCanvas(pos);
+                var cpoint = vm.ClampToCanvas(pos);
 
                 Canvas.SetLeft(element, cpoint.X - 3);
                 Canvas.SetTop(element, cpoint.Y - 3);
 
-                if (element is Ellipse ell && DataContext is MainViewModel vm)
+                if (element is Ellipse ell)
                 {
                     var model = (GeneralizedPoint)ell.Tag;
 
@@ -286,7 +287,7 @@ namespace WpfApp1
                 // Add new point
                 case 2:
                     vm.AddPoint(pos);
-                    this.RenderCurvePoints();
+                    this.RenderPoints();
                     break;
             }
         }
@@ -316,37 +317,42 @@ namespace WpfApp1
 
         private void HandleInterpolation()
         {
-            if (DataContext is MainViewModel vm)
+            if (DataContext is not MainViewModel vm) return;
+            if (!vm.IsLoaded)
             {
-                if (!vm.IsLoaded)
-                {
-                    return;
-                }
+                return;
+            }
 
-                // handle visibility
-                switch (vm.GetInterpolationTypeEnum())
-                {
-                    case EInterpolationType.EIT_Constant:
-                    case EInterpolationType.EIT_Linear:
-                        CanvasLinearCurve.Visibility = Visibility.Visible;
-                        CanvasQuadraticCurve.Visibility = Visibility.Collapsed;
-                        break;
-                    case EInterpolationType.EIT_BezierQuadratic:
-                    case EInterpolationType.EIT_BezierCubic:
-                    case EInterpolationType.EIT_Hermite:
-                        CanvasQuadraticCurve.Visibility = Visibility.Visible;
-                        CanvasLinearCurve.Visibility = Visibility.Collapsed;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+            // handle visibility
+            switch (vm.GetInterpolationTypeEnum())
+            {
+                    
+                case EInterpolationType.EIT_Linear:
+                    CanvasLinearCurve.Visibility = Visibility.Visible;
+                    CanvasQuadraticCurve.Visibility = Visibility.Collapsed;
+                    CanvasCubicCurve.Visibility = Visibility.Collapsed;
+                    break;
+                case EInterpolationType.EIT_BezierQuadratic:
+                    CanvasLinearCurve.Visibility = Visibility.Collapsed;
+                    CanvasQuadraticCurve.Visibility = Visibility.Visible;
+                    CanvasCubicCurve.Visibility = Visibility.Collapsed;
+                    break;
+                case EInterpolationType.EIT_BezierCubic:
+                    CanvasLinearCurve.Visibility = Visibility.Collapsed;
+                    CanvasQuadraticCurve.Visibility = Visibility.Collapsed;
+                    CanvasCubicCurve.Visibility = Visibility.Visible;
+                    break;
+                case EInterpolationType.EIT_Constant:
+                case EInterpolationType.EIT_Hermite:
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
         private void CanvasPoints_OnMouseMove(object sender, MouseEventArgs e)
         {
             if (DataContext is not MainViewModel vm) return;
-            vm.Cursor = ClampToCanvas(e.GetPosition(CanvasPoints));
+            vm.Cursor = vm.ClampToCanvas(e.GetPosition(CanvasPoints));
         }
 
         private void MainWindow1_OnLoaded(object sender, RoutedEventArgs e)
@@ -357,18 +363,9 @@ namespace WpfApp1
             }
         }
 
-        private void VmOnCurveReloaded(object sender, EventArgs e) => RenderCurvePoints();
+        private void VmOnCurveReloaded(object sender, EventArgs e) => RenderPoints();
 
-        private Point ClampToCanvas(Point pos)
-        {
-            var x = Math.Min(
-                Math.Max(pos.X - MainViewModel.XMIN, 0),
-                this.CanvasPoints.ActualWidth - (2 * MainViewModel.XMIN));
-            var y = Math.Min(
-                Math.Max(pos.Y - MainViewModel.YMIN, 0),
-                this.CanvasPoints.ActualHeight - (2 * MainViewModel.YMIN));
-            return new Point(x, y);
-        }
+        
     }
 }
 

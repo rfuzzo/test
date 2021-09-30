@@ -5,24 +5,45 @@ namespace WpfApp1
 {
     public class GeneralizedPoint
     {
-        public double T { get; set; }
-        public double V { get; set; }
+        
         public bool IsControlPoint { get; set; }
 
         public Point? RenderPoint { get; set; }
 
+        public Vector Vector { get; set; }
+
         public GeneralizedPoint(double t, double v, bool isCtrlPoint = false)
         {
             RenderPoint = null;
-            T = t;
-            V = v;
             IsControlPoint = isCtrlPoint;
+            Vector = new(t, v);
+        }
+
+        public GeneralizedPoint(Vector vector, bool isCtrlPoint = false)
+        {
+            RenderPoint = null;
+            IsControlPoint = isCtrlPoint;
+            Vector = vector;
+        }
+
+        public double T
+        {
+            get => Vector.X;
+            set => Vector = new(value, V);
+        }
+
+        public double V
+        {
+            get => Vector.Y;
+            set => Vector = new(T, value);
         }
 
         public bool Verify()
         {
             return RenderPoint != null;
         }
+
+        
     }
 
     //enum ESegmentsLinkType : Uint8
