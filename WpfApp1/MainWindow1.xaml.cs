@@ -13,9 +13,119 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow1 : Window
     {
+        private bool _isCtrlPressed;
+
+        private Point? _dragStart;
+
         public MainWindow1()
         {
             InitializeComponent();
+        }
+
+        #region drag and drop
+
+        private void POnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm) return;
+            if (_dragStart != null && e.LeftButton == MouseButtonState.Pressed)
+            {
+                var element = (UIElement)sender;
+                var pos = e.GetPosition(CanvasPoints);
+
+                var cpoint = vm.ClampToCanvas(pos);
+
+                Canvas.SetLeft(element, cpoint.X - 3);
+                Canvas.SetTop(element, cpoint.Y - 3);
+
+                if (element is Ellipse ell)
+                {
+                    var model = (GeneralizedPoint)ell.Tag;
+
+                    // find point on curve
+                    var generalizedPoint = vm.Curve.FirstOrDefault(_ => _ == model);
+                    if (generalizedPoint != null)
+                    {
+                        var (t, v) = vm.ToWorldCoordinates(cpoint.X, cpoint.Y);
+                        generalizedPoint.T = t;
+                        generalizedPoint.V = v;
+
+                        vm.Reload(false);
+                    }
+                }
+            }
+        }
+
+        private void POnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var element = (UIElement)sender;
+            _dragStart = null;
+            element.ReleaseMouseCapture();
+
+            //if (element is Ellipse { Tag: GeneralizedPoint point } ell)
+            //{
+            //    point.IsSelected = false;
+            //    ell.Fill = point.IsSelected ? Brushes.BlueViolet :
+            //        point.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow;
+            //}
+        }
+
+        private void POnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var element = (UIElement)sender;
+            _dragStart = e.GetPosition(element);
+            element.CaptureMouse();
+
+            if (element is Ellipse { Tag: GeneralizedPoint point } ell /*&& e.ChangedButton == MouseButton.Right*/ && _isCtrlPressed)
+            {
+                //point.IsSelected = !point.IsSelected;
+                //ell.Fill = point.IsSelected ? Brushes.BlueViolet :
+                //    point.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow;
+
+                // delete curve point
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.Curve.Remove(point);
+                    vm.Reload();
+                }
+            }
+        }
+
+        #endregion
+
+        #region events
+
+        private void MainWindow1_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.CurveReloaded += VmOnCurveReloaded;
+            }
+
+            this.KeyDown += OnKeyDown;
+            this.KeyUp += OnKeyUp;
+        }
+
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                _isCtrlPressed = false;
+            }
+
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                _isCtrlPressed = true;
+            }
+        }
+
+        private void CanvasPoints_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm) return;
+            vm.Cursor = vm.ClampToCanvas(e.GetPosition(CanvasPoints));
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -28,6 +138,142 @@ namespace WpfApp1
             }
 
             RenderPoints();
+        }
+
+        private void Border_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm)
+            {
+                return;
+            }
+
+            var pos = e.GetPosition(CanvasPoints);
+            switch (e.ClickCount)
+            {
+                case 1:
+                    // 
+                    break;
+                // Add new point
+                case 2:
+                    vm.AddPoint(pos);
+                    //this.RenderPoints();
+                    vm.Reload();
+                    break;
+            }
+        }
+
+        private void CanvasPoints_OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.Height = e.NewSize.Height - (2 * MainViewModel.YMIN);
+                vm.Width = e.NewSize.Width - (2 * MainViewModel.XMIN);
+
+                if (vm.Curve is not null)
+                {
+                    vm.Reload();
+                }
+            }
+        }
+
+        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            HandleInterpolation();
+            if (DataContext is MainViewModel vm)
+            {
+                vm.Reload();
+            }
+        }
+
+        #endregion
+
+        #region methods
+
+        private void VmOnCurveReloaded(object sender, EventArgs e) => RenderPoints();
+
+        private void HandleInterpolation()
+        {
+            if (DataContext is not MainViewModel vm)
+            {
+                return;
+            }
+
+            if (!vm.IsLoaded)
+            {
+                return;
+            }
+
+            // handle visibility
+            switch (vm.GetInterpolationTypeEnum())
+            {
+
+                case EInterpolationType.EIT_Linear:
+                    CanvasLinearCurve.Visibility = Visibility.Visible;
+                    CanvasQuadraticCurve.Visibility = Visibility.Collapsed;
+                    CanvasCubicCurve.Visibility = Visibility.Collapsed;
+                    break;
+                case EInterpolationType.EIT_BezierQuadratic:
+                    CanvasLinearCurve.Visibility = Visibility.Collapsed;
+                    CanvasQuadraticCurve.Visibility = Visibility.Visible;
+                    CanvasCubicCurve.Visibility = Visibility.Collapsed;
+                    break;
+                case EInterpolationType.EIT_BezierCubic:
+                    CanvasLinearCurve.Visibility = Visibility.Collapsed;
+                    CanvasQuadraticCurve.Visibility = Visibility.Collapsed;
+                    CanvasCubicCurve.Visibility = Visibility.Visible;
+                    break;
+                case EInterpolationType.EIT_Constant:
+                case EInterpolationType.EIT_Hermite:
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void RenderPoints()
+        {
+            if (DataContext is not MainViewModel vm)
+            {
+                return;
+            }
+            if (vm.Curve is null)
+            {
+                return;
+            }
+
+            // unsubscribe from existing points
+            foreach (UIElement p in CanvasPoints.Children)
+            {
+                p.MouseDown -= POnMouseDown;
+                p.MouseUp -= POnMouseUp;
+                p.MouseMove -= POnMouseMove;
+            }
+
+            // clear existing points
+            CanvasPoints.Children.Clear();
+            DrawAxes();
+
+            // add points
+            foreach (var generalizedPoint in vm.Curve)
+            {
+                var p = new Ellipse
+                {
+                    Stroke = Brushes.Black,
+                    Fill = generalizedPoint.IsSelected ? Brushes.BlueViolet : generalizedPoint.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow,
+                    Width = 8,
+                    Height = 8,
+                    Tag = generalizedPoint
+                };
+                Canvas.SetLeft(p, generalizedPoint.RenderPoint.Value.X - 3);
+                Canvas.SetTop(p, generalizedPoint.RenderPoint.Value.Y - 3);
+
+
+                // subscribe
+                p.MouseDown += POnMouseDown;
+                p.MouseUp += POnMouseUp;
+                p.MouseMove += POnMouseMove;
+
+                CanvasPoints.Children.Add(p);
+            }
         }
 
         private void DrawAxes()
@@ -171,249 +417,7 @@ namespace WpfApp1
             Canvas.SetTop(label, y);
         }
 
-        private void RenderPoints()
-        {
-            if (DataContext is not MainViewModel vm)
-            {
-                return;
-            }
-            if (vm.Curve is null)
-            {
-                return;
-            }
-
-            // unsubscribe from existing points
-            foreach (UIElement p in CanvasPoints.Children)
-            {
-                p.MouseDown -= POnMouseDown;
-                p.MouseUp -= POnMouseUp;
-                p.MouseMove -= POnMouseMove;
-            }
-
-            // clear existing points
-            CanvasPoints.Children.Clear();
-            DrawAxes();
-
-            // add points
-            foreach (var generalizedPoint in vm.Curve)
-            {
-                var p = new Ellipse
-                {
-                    Stroke = Brushes.Black,
-                    Fill = generalizedPoint.IsSelected ? Brushes.BlueViolet : generalizedPoint.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow,
-                    Width = 8,
-                    Height = 8,
-                    Tag = generalizedPoint
-                };
-                Canvas.SetLeft(p, generalizedPoint.RenderPoint.Value.X - 3);
-                Canvas.SetTop(p, generalizedPoint.RenderPoint.Value.Y - 3);
-
-
-                // subscribe
-                p.MouseDown += POnMouseDown;
-                p.MouseUp += POnMouseUp;
-                p.MouseMove += POnMouseMove;
-
-                CanvasPoints.Children.Add(p);
-            }
-        }
-
-
-        #region drag and drop
-
-        private Point? _dragStart;
-
-        private void POnMouseMove(object sender, MouseEventArgs e)
-        {
-            if (DataContext is not MainViewModel vm) return;
-            if (_dragStart != null && e.LeftButton == MouseButtonState.Pressed)
-            {
-                var element = (UIElement)sender;
-                var pos = e.GetPosition(CanvasPoints);
-
-                var cpoint = vm.ClampToCanvas(pos);
-
-                Canvas.SetLeft(element, cpoint.X - 3);
-                Canvas.SetTop(element, cpoint.Y - 3);
-
-                if (element is Ellipse ell)
-                {
-                    var model = (GeneralizedPoint)ell.Tag;
-
-                    // find point on curve
-                    var generalizedPoint = vm.Curve.FirstOrDefault(_ => _ == model);
-                    if (generalizedPoint != null)
-                    {
-                        var (t, v) = vm.ToWorldCoordinates(cpoint.X, cpoint.Y);
-                        generalizedPoint.T = t;
-                        generalizedPoint.V = v;
-
-                        vm.Reload(false);
-                    }
-                }
-            }
-        }
-
-        private void POnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            var element = (UIElement)sender;
-            _dragStart = null;
-            element.ReleaseMouseCapture();
-
-            //if (element is Ellipse { Tag: GeneralizedPoint point } ell)
-            //{
-            //    point.IsSelected = false;
-            //    ell.Fill = point.IsSelected ? Brushes.BlueViolet :
-            //        point.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow;
-            //}
-        }
-
-        private void POnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var element = (UIElement)sender;
-            _dragStart = e.GetPosition(element);
-            element.CaptureMouse();
-
-            if (element is Ellipse { Tag: GeneralizedPoint point } ell /*&& e.ChangedButton == MouseButton.Right*/ && _isCtrlPressed)
-            {
-                //point.IsSelected = !point.IsSelected;
-                //ell.Fill = point.IsSelected ? Brushes.BlueViolet :
-                //    point.IsControlPoint ? Brushes.OrangeRed : Brushes.Yellow;
-
-                // delete curve point
-                if (DataContext is MainViewModel vm)
-                {
-                    vm.Curve.Remove(point);
-                    vm.Reload();
-                }
-            }
-        }
-
         #endregion
-
-
-        private void Border_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (DataContext is not MainViewModel vm)
-            {
-                return;
-            }
-
-            var pos = e.GetPosition(CanvasPoints);
-            switch (e.ClickCount)
-            {
-                case 1:
-                    // 
-                    break;
-                // Add new point
-                case 2:
-                    vm.AddPoint(pos);
-                    //this.RenderPoints();
-                    vm.Reload();
-                    break;
-            }
-        }
-
-        private void CanvasPoints_OnSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (DataContext is MainViewModel vm)
-            {
-                vm.Height = e.NewSize.Height - (2 * MainViewModel.YMIN);
-                vm.Width = e.NewSize.Width - (2 * MainViewModel.XMIN);
-
-                if (vm.Curve is not null)
-                {
-                    vm.Reload();
-                }
-            }
-        }
-
-        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            HandleInterpolation();
-            if (DataContext is MainViewModel vm)
-            {
-                vm.Reload();
-            }
-        }
-
-        private void HandleInterpolation()
-        {
-            if (DataContext is not MainViewModel vm)
-            {
-                return;
-            }
-
-            if (!vm.IsLoaded)
-            {
-                return;
-            }
-
-            // handle visibility
-            switch (vm.GetInterpolationTypeEnum())
-            {
-
-                case EInterpolationType.EIT_Linear:
-                    CanvasLinearCurve.Visibility = Visibility.Visible;
-                    CanvasQuadraticCurve.Visibility = Visibility.Collapsed;
-                    CanvasCubicCurve.Visibility = Visibility.Collapsed;
-                    break;
-                case EInterpolationType.EIT_BezierQuadratic:
-                    CanvasLinearCurve.Visibility = Visibility.Collapsed;
-                    CanvasQuadraticCurve.Visibility = Visibility.Visible;
-                    CanvasCubicCurve.Visibility = Visibility.Collapsed;
-                    break;
-                case EInterpolationType.EIT_BezierCubic:
-                    CanvasLinearCurve.Visibility = Visibility.Collapsed;
-                    CanvasQuadraticCurve.Visibility = Visibility.Collapsed;
-                    CanvasCubicCurve.Visibility = Visibility.Visible;
-                    break;
-                case EInterpolationType.EIT_Constant:
-                case EInterpolationType.EIT_Hermite:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private void CanvasPoints_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            if (DataContext is not MainViewModel vm) return;
-            vm.Cursor = vm.ClampToCanvas(e.GetPosition(CanvasPoints));
-        }
-
-        private void MainWindow1_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is MainViewModel vm)
-            {
-                vm.CurveReloaded += VmOnCurveReloaded;
-            }
-
-            this.KeyDown += OnKeyDown;
-            this.KeyUp += OnKeyUp;
-        }
-
-        private bool _isCtrlPressed;
-
-        private void OnKeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.LeftCtrl)
-            {
-                _isCtrlPressed = false;
-            }
-
-        }
-
-        private void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.LeftCtrl)
-            {
-                _isCtrlPressed = true;
-            }
-        }
-
-        private void VmOnCurveReloaded(object sender, EventArgs e) => RenderPoints();
-
-
     }
 }
 

@@ -10,6 +10,18 @@ using WpfApp1.Annotations;
 
 namespace WpfApp1
 {
+
+    /*
+    TODOS:
+    - Constant curve
+    - Hermite curve
+    - scrolling
+    - zooming
+
+
+    */
+
+
     public class MainViewModel : INotifyPropertyChanged
     {
         #region fields
@@ -208,12 +220,7 @@ namespace WpfApp1
 
         #endregion
 
-        /// <summary>
-        ///     Scales a canvas point to world coordinates
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
+        
         public (double t, double v) ToWorldCoordinates(double x, double y)
         {
             var t = ToWorldCoordinateX(x);

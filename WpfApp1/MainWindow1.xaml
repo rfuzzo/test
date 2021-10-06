@@ -6,8 +6,6 @@
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="MainWindow1" 
-
-        
         
         Loaded="MainWindow1_OnLoaded"
         >
