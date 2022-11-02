@@ -5,6 +5,7 @@ on:
 
 env:
   CHANGELOG_FILE: ${{ github.workspace }}-CHANGES.md
+  STAGING_DIR: ${{ github.workspace }}-staging
 
 jobs:
   build:
@@ -64,7 +65,10 @@ jobs:
       with:
         crate: git-cliff
         version: "0.9"
-
+  
+    - name: Create the mod archive
+      run: |
+        mkdir ${{ env.STAGING_DIR }}
     - name: Generate a changelog
       run: git cliff --latest --strip header -o ${{ env.CHANGELOG_FILE }}
 
