@@ -69,8 +69,12 @@ jobs:
     - name: Create the mod archive
       run: |
         mkdir ${{ env.STAGING_DIR }}
+    
     - name: Generate a changelog
-      run: git cliff --latest --strip header -o ${{ env.CHANGELOG_FILE }}
+      run: git cliff --strip header
+        
+    - name: Generate a changelog
+      run: git cliff --strip header -o ${{ env.CHANGELOG_FILE }}
 
     - name: Release
       uses: softprops/action-gh-release@v1
