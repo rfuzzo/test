@@ -86,6 +86,8 @@ jobs:
     - name: Generate a changelog
       run: git-cliff --strip header -o ${{ env.CHANGELOG_FILE }}
 
+    - run: dir
+
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
