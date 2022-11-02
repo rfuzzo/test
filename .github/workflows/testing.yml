@@ -75,11 +75,15 @@ jobs:
       run: |
         mkdir ${{ env.STAGING_DIR }}
     
-    - name: Generate a changelog
+    - name: git cliff
       run: git cliff --strip header
+    - name: git-cliff help
+      run: git-cliff --help
+    - name: git-cliff
+      run: git-cliff --strip header
         
     - name: Generate a changelog
-      run: git cliff --strip header -o ${{ env.CHANGELOG_FILE }}
+      run: git-cliff --strip header -o ${{ env.CHANGELOG_FILE }}
 
     - name: Release
       uses: softprops/action-gh-release@v1
