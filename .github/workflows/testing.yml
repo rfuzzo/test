@@ -75,12 +75,13 @@ jobs:
       run: |
         mkdir ${{ env.STAGING_DIR }}
     
+    - run: dir
     - name: git cliff
       run: git cliff --strip header
     - name: git-cliff help
       run: git-cliff --help
     - name: git-cliff
-      run: git-cliff --strip header
+      run: git-cliff -v
         
     - name: Generate a changelog
       run: git-cliff --strip header -o ${{ env.CHANGELOG_FILE }}
