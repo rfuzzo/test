@@ -19,7 +19,7 @@ jobs:
         $date = Get-Date -Format "yyyy-MM-dd"
         echo "ISODATE=$date" >> $env:GITHUB_ENV
         
-    - run: echo "VERSION=8.7.1-nightly.${{env.ISODATE}}" >> $env:GITHUB_ENV
+    - run: echo "VERSION=0.2.1-nightly.${{env.ISODATE}}" >> $env:GITHUB_ENV
     
     # tag this commit
     - name: Create Tag
@@ -73,5 +73,6 @@ jobs:
       with:
         body_path: ${{ env.CHANGELOG_FILE }}
         draft: true
+        tag_name: ${{ steps.tag_version.outputs.new_version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
