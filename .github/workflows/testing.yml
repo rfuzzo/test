@@ -57,17 +57,11 @@ jobs:
       run: |
         echo "This is a beta release so you may encounter bugs. Please report them. \n ${{ steps.tag_version.outputs.changelog }}"
     
-    - name: Generate a changelog
-      uses: orhun/git-cliff-action@v1
-      with:
-        config: cliff.toml
-        args: --verbose
-      env:
-        OUTPUT: CHANGELOG.md
-    - run: Get-Content -Path .\CHANGELOG.md -TotalCount 10
+   
     
     - name: Set up git-cliff
       uses: kenji-miyake/setup-git-cliff@v1
 
     - name: Run git-cliff
       run: git-cliff -v
+    - run: Get-Content -Path .\CHANGELOG.md -TotalCount 10
