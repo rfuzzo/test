@@ -14,25 +14,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Get Date
-      run: |
-        $date = Get-Date -Format "yyyy-MM-dd"
-        echo "ISODATE=$date" >> $env:GITHUB_ENV
-        
-    - run: echo "VERSION=0.2.1-nightly.${{env.ISODATE}}" >> $env:GITHUB_ENV
+            
+    - run: echo "VERSION=0.2.1-nightly" >> $env:GITHUB_ENV
     
     # tag this commit
     - name: Create Tag
       id: tag_version
-      uses: rfuzzo/github-tag-action@0c1e41fb4d58b3c63fc568a43e810c11282e551a
+      uses: mathieudutour/github-tag-action@v6.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         default_bump: false
         custom_tag: ${{ env.VERSION }}
         tag_prefix: ""
         dry_run: true
-        use_prerelease_tag: true
+        append_to_pre_release_tag: ""
 
     # echo
     - name: output step
