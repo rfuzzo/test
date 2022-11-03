@@ -20,7 +20,7 @@ jobs:
     # tag this commit
     - name: Create Tag
       id: tag_version
-      uses: rfuzzo/github-tag-action@4a222beedb8e94a1da2230e80888cefcff58ce44
+      uses: rfuzzo/github-tag-action@277692a56181f2f93a49085f7fa0ff8bdb1aaee6
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         default_bump: false
