@@ -14,12 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Prepare toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-    - uses: Swatinem/rust-cache@v1
-        
+    
     - name: Get Date
       run: |
         $date = Get-Date -Format "yyyy-MM-dd"
@@ -30,7 +25,7 @@ jobs:
     # tag this commit
     - name: Create Tag
       id: tag_version
-      uses: rfuzzo/github-tag-action@d809a968bb7702bff7a36c33ae6b1d938ddfe5ae
+      uses: rfuzzo/github-tag-action@0c1e41fb4d58b3c63fc568a43e810c11282e551a
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         default_bump: false
