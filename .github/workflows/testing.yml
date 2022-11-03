@@ -57,42 +57,9 @@ jobs:
       run: |
         echo "This is a beta release so you may encounter bugs. Please report them. \n ${{ steps.tag_version.outputs.changelog }}"
         
-    # RELEASE
-    #- name: Release
-    #  run: |
-    #      gh release create ${{ steps.tag_version.outputs.new_version }} -n "${{ env.MESSAGE }}" --generate-notes -d
-    #  env:
-    #    MESSAGE: "This is a beta release so you may encounter bugs. Please report them. ${{ steps.tag_version.outputs.changelog }}"
-    #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Install git-cliff
-      uses: baptiste0928/cargo-install@v1
-      with:
-        crate: git-cliff
-        version: "0.9"
-  
-    - name: Create the mod archive
+    - name: Set up git-cliff
+      uses: kenji-miyake/setup-git-cliff@v1
+
+    - name: Run git-cliff
       run: |
-        mkdir ${{ env.STAGING_DIR }}
-    
-    - run: dir
-    - name: git cliff
-      run: git cliff --strip header
-    - name: git-cliff help
-      run: git-cliff --help
-    - name: git-cliff
-      run: git-cliff -v
-        
-    - name: Generate a changelog
-      run: git-cliff --strip header -o ${{ env.CHANGELOG_FILE }}
-
-    - run: dir
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        body_path: ${{ env.CHANGELOG_FILE }}
-        draft: true
-        tag_name: ${{ steps.tag_version.outputs.new_version }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        git cliff
