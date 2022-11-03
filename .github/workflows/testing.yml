@@ -59,8 +59,11 @@ jobs:
     
    
     
-    - name: Set up git-cliff
-      uses: kenji-miyake/setup-git-cliff@v1
+    - name: Install git-cliff
+      uses: baptiste0928/cargo-install@v1
+      with:
+        crate: git-cliff
+        version: "0.9"
 
     - name: Run git-cliff
       run: git-cliff -v
