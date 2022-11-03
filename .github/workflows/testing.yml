@@ -66,6 +66,6 @@ jobs:
         version: "0.9"
 
     - name: Run git-cliff
-      run: git-cliff -v
-    - run: git-cliff -v -o CHANGELOG.md
+      run: git-cliff -u
+    - run: git-cliff -u -o CHANGELOG.md
     - run: Get-Content -Path .\CHANGELOG.md -TotalCount 10
