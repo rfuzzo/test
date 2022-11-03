@@ -37,7 +37,7 @@ jobs:
         custom_tag: ${{ env.VERSION }}
         tag_prefix: ""
         dry_run: true
-        usePrereleaseTag: true
+        use_prerelease_tag: true
 
     # echo
     - name: output step
