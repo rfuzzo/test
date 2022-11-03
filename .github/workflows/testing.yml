@@ -30,7 +30,7 @@ jobs:
     # tag this commit
     - name: Create Tag
       id: tag_version
-      uses: mathieudutour/github-tag-action@v6.1
+      uses: rfuzzo/github-tag-action@c9d8c698807b4ecd99fe91e4d4a39bc652ea1e33
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         default_bump: false
@@ -66,6 +66,6 @@ jobs:
         version: "0.9"
 
     - name: Run git-cliff
-      run: git-cliff -u
-    - run: git-cliff -u -o CHANGELOG.md
+      run: git-cliff
+    - run: git-cliff -o CHANGELOG.md
     - run: Get-Content -Path .\CHANGELOG.md -TotalCount 10
