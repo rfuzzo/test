@@ -1,15 +1,30 @@
 name: Testing
 
 on:
+  push:
   workflow_dispatch:
 
 env:
   CHANGELOG_FILE: ${{ github.workspace }}-CHANGES.md
   STAGING_DIR: ${{ github.workspace }}-staging
 
-jobs:
-  build:
 
+jobs:
+  tagpush:
+    if: ${{ startsWith(github.ref, 'refs/tags/')
+    runs-on: windows-latest
+    
+    steps:
+      - name: ref test for prerelease
+        if: ${{ contains(github.ref_name, '-') }}
+        run: echo ${{github.ref_name}}
+      
+      - name: test for tag
+        if: ${{ startsWith(github.ref, 'refs/tags/')
+        run: echo ${{github.ref_name}}
+  
+  dispatch:
+    if: ${{ !startsWith(github.ref, 'refs/tags/')
     runs-on: windows-latest
 
     steps:
@@ -19,8 +34,12 @@ jobs:
     - run: echo ${{github.ref_name}}
     - run: echo ${{github.ref}}
     
-    - name: ref test
+    - name: ref test for prerelease
       if: ${{ contains(github.ref_name, '-') }}
+      run: echo ${{github.ref_name}}
+      
+    - name: test for tag
+      if: ${{ startsWith(github.ref, 'refs/tags/')
       run: echo ${{github.ref_name}}
     
     # tag this commit
@@ -56,13 +75,29 @@ jobs:
     
    
     
-    - name: Install git-cliff
-      uses: baptiste0928/cargo-install@v1
-      with:
-        crate: git-cliff
-        version: "0.9"
+    # - name: Install git-cliff
+    #   uses: baptiste0928/cargo-install@v1
+    #   with:
+    #     crate: git-cliff
+    #     version: "0.9"
 
-    - name: Run git-cliff
-      run: git-cliff
-    - run: git-cliff -o CHANGELOG.md
-    - run: Get-Content -Path .\CHANGELOG.md -TotalCount 10
+    # - name: Run git-cliff
+    #   run: git-cliff
+    # - run: git-cliff -o CHANGELOG.md
+    # - run: Get-Content -Path .\CHANGELOG.md -TotalCount 10
+    
+    - run: echo "TAG=${{github.ref}}" >> $env:GITHUB_ENV
+    - name: change tag
+      if: ${{ !startsWith(github.ref, 'refs/tags/')
+      run: echo "TAG=testing" >> $env:GITHUB_ENV
+    
+    
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ env.TAG }}
+        draft: true
+        generateReleaseNotes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
