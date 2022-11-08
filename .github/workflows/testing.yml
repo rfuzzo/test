@@ -17,13 +17,19 @@ jobs:
     runs-on: windows-latest
     
     steps:
+    
+      - name: echo github.ref_name
+        run: echo ${{github.ref_name}}
+      - name: echo github.ref
+        run: echo ${{github.ref}}
+    
       - name: ref test for prerelease
         if: ${{ contains(github.ref_name, '-') }}
         run: echo ${{github.ref_name}}
       
       - name: test for tag
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: echo ${{github.ref_name}}
+        run: echo ${{github.ref}}
   
   dispatch:
     if: ${{ !startsWith(github.ref, 'refs/tags/') }}
