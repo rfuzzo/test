@@ -2,6 +2,8 @@ name: Testing
 
 on:
   push:
+    tags:
+    - '**'
   workflow_dispatch:
 
 env:
@@ -30,9 +32,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3  
     
-    - name: echo ${{github.ref_name}}
+    - name: echo github.ref_name
       run: echo ${{github.ref_name}}
-    - name: echo ${{github.ref}}
+    - name: echo github.ref
       run: echo ${{github.ref}}
   
     # tag this commit
@@ -73,7 +75,8 @@ jobs:
     # - run: git-cliff -o CHANGELOG.md
     # - run: Get-Content -Path .\CHANGELOG.md -TotalCount 10
     
-    - run: echo "TAG=${{github.ref}}" >> $env:GITHUB_ENV
+    - name: set tag env to github.ref
+      run: echo "TAG=${{github.ref}}" >> $env:GITHUB_ENV
     - name: change tag
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
       run: echo "TAG=testing" >> $env:GITHUB_ENV
