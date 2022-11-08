@@ -2,8 +2,8 @@ name: Testing
 
 on:
   push:
-    tags:
-    - '**'
+    tags-ignore:
+    - '*-*'
   workflow_dispatch:
 
 env:
