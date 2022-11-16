@@ -15,7 +15,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: download
-      run: gh release download --pattern '*.msix' --repo WolvenKit/WolvenKit.Installer
+      run: gh release download --pattern '*.msixbundle' --repo WolvenKit/WolvenKit.Installer
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
