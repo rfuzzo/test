@@ -10,15 +10,14 @@ jobs:
     runs-on: windows-latest 
     
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: download
-      run: gh release download --pattern '*.msixbundle' --repo WolvenKit/WolvenKit.Installer --dir ./publish
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-    - run: dir -s
-    - name: test inno setup 
-      run: iscc /?
+
+    - name: dbg1
+      run: |
+        $gh = Get-Content '${{ github.event_path }}'
+        $gh
+
+    - name: dbg2
+      run: |
+        $gh = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
+        $na = $gh.release.assets | Where-Object -Property name
+        $na
