@@ -24,7 +24,13 @@ jobs:
     - name: dbg12
       run: |
         $gh = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
-        $na = $gh.owner | Where-Object -Property avatar_url
+        $na = $gh.repository | Where-Object -Property comments_url
+        $na
+        
+    - name: dbg13
+      run: |
+        $gh = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
+        $na = $gh.repository.owner | Where-Object -Property avatar_url
         $na
 
     - name: dbg2
