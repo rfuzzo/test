@@ -25,7 +25,7 @@ jobs:
       run: |
         $gh = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
         $na = $gh.repository.description
-        echo "{DESCRIPTION}=$na" >> $GITHUB_ENV
+        echo "DESCRIPTION=$na" >> $GITHUB_ENV
         
     - name: r1
       if: "${{ env.DESCRIPTION != '' }}"
@@ -39,7 +39,7 @@ jobs:
       run: |
         $gh = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
         $na = $gh.repository.branches_url
-        echo "{DESCRIPTION2}=$na" >> $GITHUB_ENV
+        echo "DESCRIPTION2=$na" >> $GITHUB_ENV
         
     - name: r12
       if: "${{ env.DESCRIPTION2 != '' }}"
